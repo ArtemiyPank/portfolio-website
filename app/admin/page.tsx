@@ -37,6 +37,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState("")
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -45,16 +46,41 @@ export default function AdminPage() {
     }
   }, [isAuthenticated])
 
-  // Simple password authentication (in production, use proper auth)
-  const handleAuth = () => {
-    if (password === "admin123") {
-      setIsAuthenticated(true)
-    } else {
+  // Authentication with environment variable
+  const handleAuth = async () => {
+    setIsLoading(true)
+    try {
+      const response = await fetch("/api/auth/admin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password }),
+      })
+
+      const result = await response.json()
+
+      if (response.ok) {
+        setIsAuthenticated(true)
+        toast({
+          title: "Success",
+          description: "Access granted",
+        })
+      } else {
+        toast({
+          title: "Access Denied",
+          description: result.error || "Invalid password",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
       toast({
-        title: "Access Denied",
-        description: "Invalid password",
+        title: "Error",
+        description: "Authentication failed",
         variant: "destructive",
       })
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -91,7 +117,7 @@ export default function AdminPage() {
           description: "Project updated successfully",
         })
       } else {
-        // Create a new project
+        // Create new project
         const response = await fetch("/api/projects", {
           method: "POST",
           headers: {
@@ -162,10 +188,11 @@ export default function AdminPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleAuth()}
+                    disabled={isLoading}
                 />
               </div>
-              <Button onClick={handleAuth} className="w-full">
-                Login
+              <Button onClick={handleAuth} className="w-full" disabled={isLoading}>
+                {isLoading ? "Authenticating..." : "Login"}
               </Button>
             </CardContent>
           </Card>

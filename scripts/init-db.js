@@ -15,7 +15,7 @@ db.pragma('foreign_keys = ON');
 
 function initDatabase() {
   // Read SQL schema from file
-  const schemaPath = path.join(process.cwd(), 'scripts', 'schema.sql');
+  const schemaPath = path.join(process.cwd(), 'scripts', 'init-database.sql');
   const initSql = fs.readFileSync(schemaPath, 'utf8');
   
   db.exec(initSql);
@@ -40,7 +40,6 @@ try {
   initDatabase()
   console.log("✅ Database initialized successfully!")
   console.log("📁 Database file created: portfolio.db")
-  console.log("📄 Schema loaded from: scripts/schema.sql")
 } catch (error) {
   console.error("❌ Error initializing database:", error)
   process.exit(1)

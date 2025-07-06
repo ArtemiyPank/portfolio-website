@@ -30,6 +30,8 @@ next-env.d.ts
 *.db
 *.sqlite
 
+.env
+
 # uploads
 /public/uploads/*
 !/public/uploads/.gitkeep
