@@ -1,20 +1,3 @@
-const path = require("path")
-const fs = require("fs")
-
-// Создаем lib/database.js для Node.js
-const dbCode = `
-const Database = require('better-sqlite3');
-const path = require('path');
-
-const dbPath = path.join(process.cwd(), 'portfolio.db');
-const db = new Database(dbPath);
-
-// Enable foreign keys
-db.pragma('foreign_keys = ON');
-
-function initDatabase() {
-  const initSql = \`
--- Create projects table
 CREATE TABLE IF NOT EXISTS projects (
                                         id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
     title TEXT NOT NULL,
@@ -23,13 +6,13 @@ CREATE TABLE IF NOT EXISTS projects (
     image_url TEXT,
     github_url TEXT,
     demo_url TEXT,
-    tags TEXT DEFAULT '[]',
-    featured INTEGER DEFAULT 0,
+    tags TEXT DEFAULT '[]', -- JSON array as string
+    featured INTEGER DEFAULT 0, -- SQLite uses INTEGER for boolean
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
--- Create tags table
+-- Create tags table for better organization
 CREATE TABLE IF NOT EXISTS tags (
                                     id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
     name TEXT UNIQUE NOT NULL,
@@ -37,7 +20,7 @@ CREATE TABLE IF NOT EXISTS tags (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
 
--- Insert sample tags
+-- Insert some sample tags
 INSERT OR IGNORE INTO tags (name, color) VALUES
   ('React', '#61DAFB'),
   ('Next.js', '#000000'),
@@ -71,40 +54,12 @@ INSERT OR IGNORE INTO projects (title, description, short_description, image_url
     1
   ),
   (
-    'Weather Forecast API',
+    'Password Generator',
     'RESTful API service that aggregates weather data from multiple sources and provides accurate forecasting with caching and rate limiting.',
     'RESTful weather API with data aggregation',
     '/placeholder.svg?height=400&width=600',
-    'https://github.com/username/weather-api',
+    'https://github.com/ArtemiyPank/PasswordGenerator',
     NULL,
     '["Python", "Docker", "Node.js"]',
     0
   );
-\`;
-
-  db.exec(initSql);
-}
-
-module.exports = { initDatabase, db };
-`
-
-// Создаем директорию lib если её нет
-if (!fs.existsSync("lib")) {
-  fs.mkdirSync("lib")
-}
-
-// Записываем файл database.js
-fs.writeFileSync("lib/database.js", dbCode)
-
-// Инициализируем базу данных
-const { initDatabase } = require("../lib/database.js")
-
-console.log("Initializing SQLite database...")
-try {
-  initDatabase()
-  console.log("✅ Database initialized successfully!")
-  console.log("📁 Database file created: portfolio.db")
-} catch (error) {
-  console.error("❌ Error initializing database:", error)
-  process.exit(1)
-}
