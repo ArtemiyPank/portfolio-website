@@ -1,0 +1,82 @@
+# Development configuration (localhost)
+localhost {
+    reverse_proxy portfolio:3000
+
+    # Enable compression
+    encode gzip
+
+    # Security headers
+    header {
+        # Enable HSTS
+        Strict-Transport-Security max-age=31536000;
+        # Prevent MIME sniffing
+        X-Content-Type-Options nosniff
+        # Prevent clickjacking
+        X-Frame-Options DENY
+        # Enable XSS protection
+        X-XSS-Protection "1; mode=block"
+        # Referrer policy
+        Referrer-Policy strict-origin-when-cross-origin
+        # Remove server header
+        -Server
+    }
+
+    # Cache static assets
+    @static {
+        path /_next/static/* /uploads/* /favicon.ico
+    }
+    header @static Cache-Control "public, max-age=31536000, immutable"
+
+    # API routes with shorter cache
+    @api {
+        path /api/*
+    }
+    header @api Cache-Control "no-cache, no-store, must-revalidate"
+}
+
+# Production configuration (replace with your domain)
+# your-domain.com {
+#     reverse_proxy portfolio:3000
+#
+#     # Enable compression
+#     encode gzip
+#
+#     # Security headers
+#     header {
+#         # Enable HSTS
+#         Strict-Transport-Security max-age=31536000;
+#         # Prevent MIME sniffing
+#         X-Content-Type-Options nosniff
+#         # Prevent clickjacking
+#         X-Frame-Options DENY
+#         # Enable XSS protection
+#         X-XSS-Protection "1; mode=block"
+#         # Referrer policy
+#         Referrer-Policy strict-origin-when-cross-origin
+#         # Remove server header
+#         -Server
+#     }
+#
+#     # Cache static assets
+#     @static {
+#         path /_next/static/* /uploads/* /favicon.ico
+#     }
+#     header @static Cache-Control "public, max-age=31536000, immutable"
+#
+#     # API routes with shorter cache
+#     @api {
+#         path /api/*
+#     }
+#     header @api Cache-Control "no-cache, no-store, must-revalidate"
+#
+#     # Rate limiting for admin panel
+#     @admin {
+#         path /admin* /api/auth/admin*
+#     }
+#     rate_limit @admin {
+#         zone admin
+#         key {remote_host}
+#         events 10
+#         window 1m
+#     }
+# }
