@@ -11,12 +11,12 @@ services:
     environment:
       NODE_ENV: production
       ADMIN_PASSWORD: "${ADMIN_PASSWORD:-admin123}"
-      DATABASE_URL: "file:./portfolio.db"
-      NEXT_PUBLIC_APP_URL: "${NEXT_PUBLIC_APP_URL:-http://localhost:3000}"
+      DATABASE_URL: "file:./data/portfolio.db"
+      NEXT_PUBLIC_APP_URL: "${NEXT_PUBLIC_APP_URL:-http://localhost:3001}"
       NEXTAUTH_SECRET: "${NEXTAUTH_SECRET:-your_secret_here}"
     # Bind-mount the DB file and uploads folder directly from your project
     volumes:
-      - ./portfolio.db:/app/portfolio.db:z
+      - ./data:/app/data/:z
       - ./public/uploads:/app/public/uploads:z
 #      - portfolio_uploads:./public/uploads
     restart: unless-stopped

@@ -2,7 +2,8 @@ import Database from "better-sqlite3"
 import path from "path"
 import { readFileSync } from "fs"
 
-const dbPath = path.join(process.cwd(), "portfolio.db")
+const dataDir = path.join(process.cwd(), 'data');
+const dbPath = path.join(dataDir, 'portfolio.db');
 const db = new Database(dbPath)
 
 // Enable foreign keys

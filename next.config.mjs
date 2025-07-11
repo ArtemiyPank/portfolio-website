@@ -1,3 +1,4 @@
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
@@ -8,7 +9,6 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    // domains: ['placeholder.svg'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -22,18 +22,15 @@ const nextConfig = {
     ],
     unoptimized: false,
   },
-  // Подключаем native-модуль better-sqlite3 к серверным компонентам
-  serverExternalPackages: ['better-sqlite3'],
-
-  async rewrites() {
-    return [
-      {
-        source: '/uploads/:path*',
-        destination: '/uploads/:path*',
-      },
-    ]
+  experimental: {
+    serverComponentsExternalPackages: ['better-sqlite3']
   },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals = [...config.externals, 'better-sqlite3']
+    }
+    return config
+  }
 }
-
 
 export default nextConfig
