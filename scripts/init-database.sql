@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS projects (
                                         id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-    title TEXT NOT NULL,
+    title TEXT NOT NULL UNIQUE,
     description TEXT,
     short_description TEXT,
     image_url TEXT,
@@ -49,53 +49,7 @@ INSERT OR IGNORE INTO tags (name, color) VALUES
 INSERT OR IGNORE INTO projects (title, description, short_description, image_url, github_url, demo_url, tags, featured) VALUES
   (
     'SSNS - Secure Split-Neural Synchronization',
-    '# Secure Split-Neural Synchronization Protocol
-
-## Overview
-SSNS is a revolutionary post-quantum cryptographic protocol that combines homomorphic encryption (BFV/CKKS), neural network synchronization, and privacy-preserving machine learning. This protocol enables secure key generation between resource-constrained IoT devices and powerful servers without transmitting sensitive model weights or training data over the network.
-
-## Key Features
-- **Homomorphic Encryption**: Uses BFV/CKKS schemes for post-quantum security
-- **Neural Network Synchronization**: Teacher-Student model architecture with Feedback Alignment
-- **Privacy-Preserving ML**: Stochastic Activation Pruning with zero-masking protection
-- **IoT-Optimized**: Asymmetric computation (heavy ops on server, light ops on client)
-- **Offline Key Generation**: Synchronized models generate identical keys without network communication
-
-## Technical Architecture
-
-### Phase 1: Initialization
-1. Client generates homomorphic encryption keypair (Public Key, Secret Key, Galois Keys)
-2. Client initializes neural network with random weights (W1, W2)
-3. Server generates fixed Feedback Alignment matrix (B) for gradient computation
-
-### Phase 2: Training Loop (Synchronization)
-1. **Client Forward Pass**: Computes hidden layer with Dropout masking and noise injection
-2. **Encryption & Transmission**: Encrypts activations with homomorphic encryption
-3. **Server Gradient Computation**: Computes gradients on ciphertext using teacher model
-4. **Client Weight Update**: Decrypts gradients, filters with Dropout mask, updates weights
-
-### Phase 3: Key Generation
-- Both parties use synchronized neural networks as pseudorandom functions
-- Identical inputs produce identical outputs (cryptographic key material)
-- No network communication required during key generation phase
-
-## Security Properties
-- **Post-Quantum Resistant**: Based on lattice cryptography (RLWE problem)
-- **Forward Secrecy**: Each training epoch uses different Dropout masks
-- **Side-Channel Protection**: Zero-masking prevents traffic analysis attacks
-- **Model Privacy**: Server never sees plaintext weights or activations
-
-## Implementation
-- **Language**: C++20
-- **Crypto Library**: Homomorphic encryption implementation (BFV/CKKS)
-- **Build System**: CMake
-- **Target**: IoT devices, embedded systems, mobile platforms
-
-## Applications
-- Secure device pairing without pre-shared secrets
-- Privacy-preserving federated learning
-- Quantum-resistant key exchange for IoT
-- Distributed machine learning with confidential models',
+    'A revolutionary post-quantum cryptographic protocol combining homomorphic encryption (BFV/CKKS) and neural network synchronization for secure key generation between IoT devices and servers. The system enables privacy-preserving machine learning where resource-constrained clients and powerful servers can synchronize neural networks without transmitting sensitive model weights or training data, achieving post-quantum security through lattice cryptography while supporting offline key generation.',
     'Post-quantum cryptographic protocol using homomorphic encryption and neural network synchronization',
     NULL,
     'https://github.com/ArtemiyPank/SSNS',
@@ -105,40 +59,7 @@ SSNS is a revolutionary post-quantum cryptographic protocol that combines homomo
   ),
   (
     'PasswordGenerator',
-    '# Deterministic Password Generator
-
-## Overview
-A C++ application that generates complex, unique passwords deterministically from a master password. Uses SHA3-512 hashing and Crypto++ library to ensure cryptographic security while maintaining reproducibility.
-
-## Key Features
-- **Deterministic Generation**: Same master password + service name = same output password
-- **Cryptographically Secure**: SHA3-512 hashing algorithm (post-quantum resistant)
-- **No Storage Required**: Passwords are computed on-the-fly, nothing stored on disk
-- **Customizable Output**: Configurable length, character sets, and complexity rules
-- **Cross-Platform**: Works on Windows, Linux, and macOS
-
-## Technical Implementation
-- **Hashing Algorithm**: SHA3-512 (Keccak) from Crypto++ library
-- **Key Derivation**: Master password + service name + optional salt
-- **Character Encoding**: Base64/Custom alphabet for password generation
-- **Memory Security**: Secure memory wiping after password generation
-
-## Security Properties
-- **Master Password Protection**: Single point of entry, never transmitted
-- **Collision Resistance**: SHA3-512 provides 512-bit security
-- **Quantum Resistant**: SHA3 is considered post-quantum secure
-- **No Database Breaches**: No password storage means no data to steal
-
-## Build & Dependencies
-- C++20 compiler (GCC 10+, Clang 12+, MSVC 2019+)
-- Crypto++ library (libcrypto++)
-- CMake 3.15+
-
-## Use Cases
-- Personal password management without cloud storage
-- Secure password generation for multiple services
-- Offline password access (no internet required)
-- Security-conscious users seeking transparency',
+    'A cryptographically secure password generator built in C++ that deterministically creates unique passwords from a master password using SHA3-512 hashing. The application eliminates the need for password storage by computing passwords on-the-fly with the Crypto++ library, providing quantum-resistant security while ensuring the same master password and service name combination always produces identical results across platforms.',
     'Deterministic password generator using SHA3-512 and Crypto++ for cryptographic security',
     NULL,
     'https://github.com/ArtemiyPank/PasswordGenerator',
@@ -148,46 +69,7 @@ A C++ application that generates complex, unique passwords deterministically fro
   ),
   (
     'KioskUdBet',
-    '# KioskUdBet - Enterprise Kiosk Management System
-
-## Overview
-Full-stack C#/.NET MAUI mobile and web application for managing a dormitory kiosk with 400+ active users. Features real-time inventory management, role-based access control, custom JWT authentication, and comprehensive admin dashboard.
-
-## Key Features
-- **Cross-Platform Mobile App**: .NET MAUI (iOS, Android, Windows)
-- **RESTful Web API**: ASP.NET Core backend with SQLite database
-- **Custom Authentication**: JWT-based access/refresh token system (no third-party libraries)
-- **Role-Based Access**: Admin, Manager, Customer roles with granular permissions
-- **Real-Time Updates**: Order status tracking and delivery notifications
-- **Inventory Management**: Stock tracking, low-stock alerts, auto-reordering
-- **Analytics Dashboard**: Sales reports, revenue tracking, customer insights
-
-## Technical Stack
-- **Frontend**: .NET MAUI, XAML, C#
-- **Backend**: ASP.NET Core 7.0, Entity Framework Core
-- **Database**: SQLite (production), MSSQL (staging)
-- **Authentication**: Custom JWT implementation with refresh tokens
-- **API Design**: RESTful architecture with versioning support
-
-## Architecture
-- **Client-Server**: Mobile app communicates with centralized API server
-- **Token Management**: Secure token storage with encryption
-- **Cart System**: Persistent shopping cart with offline support
-- **Payment Integration**: Multiple payment methods support
-- **Delivery Tracking**: Real-time order status updates
-
-## Deployed Scale
-- **Active Users**: 400+ students and staff
-- **Daily Transactions**: 100-150 orders
-- **Uptime**: 99.5% availability
-- **Response Time**: <200ms average API response
-
-## Security Features
-- Encrypted data transmission (HTTPS/TLS)
-- Password hashing with bcrypt
-- SQL injection prevention (parameterized queries)
-- XSS protection (input validation and sanitization)
-- Rate limiting and abuse prevention',
+    'A production-ready enterprise kiosk management system built with C# and .NET MAUI, serving 400+ active users in a dormitory environment with 100-150 daily transactions. The full-stack application features a cross-platform mobile app, RESTful API backend with custom JWT authentication, real-time inventory management, role-based access control, and comprehensive analytics dashboard, achieving 99.5% uptime with sub-200ms response times.',
     'Enterprise kiosk management system serving 400+ users with custom JWT authentication',
     NULL,
     'https://github.com/ArtemiyPank/KioskUdBet',
@@ -197,31 +79,7 @@ Full-stack C#/.NET MAUI mobile and web application for managing a dormitory kios
   ),
   (
     'orchestra-website',
-    '# Atid Raziel School Orchestra Website
-
-## Overview
-Multilingual website for the Atid Raziel School Orchestra in Israel. Built with Next.js, featuring modern design, internationalization, and content management for showcasing orchestra performances and events.
-
-## Key Features
-- **Multilingual Support**: Hebrew, English, Russian language support
-- **Responsive Design**: Mobile-first approach with Tailwind CSS
-- **Performance Optimized**: Next.js SSG/SSR for fast page loads
-- **Gallery Management**: Photo and video galleries for concerts
-- **Event Calendar**: Upcoming performances and rehearsal schedules
-- **SEO Optimized**: Meta tags, structured data, sitemap generation
-
-## Technical Stack
-- Next.js 14+ (App Router)
-- TypeScript
-- Tailwind CSS
-- Framer Motion (animations)
-- next-intl (internationalization)
-
-## Deployment
-- Vercel hosting
-- Automatic deployments from Git
-- CDN-optimized assets
-- Analytics integration',
+    'A modern, multilingual website for the Atid Raziel School Orchestra in Israel, built with Next.js 14 and TypeScript. The site supports Hebrew, English, and Russian languages with next-intl, features a responsive mobile-first design with Tailwind CSS and Framer Motion animations, includes photo/video galleries for concerts, event calendars for performances, and is optimized for SEO with server-side rendering deployed on Vercel.',
     'Multilingual Next.js website for school orchestra with modern UI/UX',
     NULL,
     'https://github.com/ArtemiyPank/orchestra-website',
@@ -231,38 +89,7 @@ Multilingual website for the Atid Raziel School Orchestra in Israel. Built with 
   ),
   (
     'YouTubeDownloadBot',
-    '# YouTube Download Telegram Bot
-
-## Overview
-Python Telegram bot for downloading YouTube videos and audio. Features asynchronous job queues, FFmpeg conversion, file size safeguards, and robust error handling with Redis caching.
-
-## Key Features
-- **Video Download**: Multiple quality options (1080p, 720p, 480p)
-- **Audio Extraction**: MP3/M4A format support
-- **Async Processing**: Non-blocking job queue with Redis
-- **File Size Limits**: Automatic quality downgrade for large files
-- **Progress Tracking**: Real-time download progress updates
-- **Error Recovery**: Retry logic and detailed error logging
-
-## Technical Stack
-- Python 3.10+
-- python-telegram-bot library
-- yt-dlp (YouTube downloader)
-- FFmpeg (media conversion)
-- Redis (job queue and caching)
-- Docker (containerization)
-
-## Architecture
-- Async/await for concurrent downloads
-- Redis-based job queue for scalability
-- FFmpeg for format conversion
-- Temp file cleanup and disk management
-
-## Deployed Features
-- Rate limiting (anti-spam)
-- User analytics
-- Download history
-- Playlist support',
+    'A production-ready Telegram bot built with Python and python-telegram-bot library for downloading YouTube videos and audio with multiple quality options. The bot features asynchronous processing using Redis job queues, FFmpeg media conversion, automatic quality downgrade for large files, real-time progress tracking, comprehensive error recovery with retry logic, rate limiting, and is containerized with Docker for scalable deployment.',
     'Async Telegram bot for YouTube downloads with Redis queue and FFmpeg conversion',
     NULL,
     'https://github.com/ArtemiyPank/YouTubeDownloadBot',
@@ -272,23 +99,7 @@ Python Telegram bot for downloading YouTube videos and audio. Features asynchron
   ),
   (
     'KioskWebCheckOut',
-    '# Kiosk Web Checkout System
-
-## Overview
-Node.js/SQLite web application for product sales with category filtering, photo-backed counters, revenue statistics, and purchase analytics.
-
-## Key Features
-- Product catalog with categories
-- Shopping cart functionality
-- Revenue tracking and analytics
-- Admin dashboard for inventory management
-- Real-time stock updates
-
-## Technical Stack
-- Node.js + Express
-- SQLite database
-- JavaScript frontend
-- Bootstrap CSS',
+    'A lightweight Node.js web application for managing product sales with an Express backend and SQLite database. The system includes a product catalog with category filtering, shopping cart functionality, revenue tracking and analytics, an admin dashboard for inventory management, and real-time stock updates, all styled with Bootstrap for a responsive interface.',
     'Node.js web app for product sales with analytics and inventory management',
     NULL,
     'https://github.com/ArtemiyPank/KioskWebCheckOut',
@@ -298,16 +109,7 @@ Node.js/SQLite web application for product sales with category filtering, photo-
   ),
   (
     'DungeonAdventureGameExercise',
-    '# Dungeon Adventure Game
-
-## Overview
-Object-oriented dungeon crawler game written in Java. Features procedural dungeon generation, combat system, and inventory management.
-
-## Technical Stack
-- Java 17+
-- Object-Oriented Design
-- Game loop architecture
-- Unit testing with JUnit',
+    'An object-oriented dungeon crawler game developed in Java 17+ demonstrating classic OOP design patterns and game architecture. The game features procedural dungeon generation algorithms, a turn-based combat system, inventory management mechanics, and a structured game loop architecture, with comprehensive unit testing using JUnit to ensure code quality and game logic correctness.',
     'Java-based dungeon crawler with OOP design patterns',
     NULL,
     'https://github.com/ArtemiyPank/DungeonAdventureGameExercise',

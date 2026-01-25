@@ -1,22 +1,66 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import {motion} from "framer-motion"
 import {Badge} from "@/components/ui/badge"
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
-import {Code, Database, Globe, Smartphone, Server, Palette, LanguagesIcon, Puzzle, } from "lucide-react"
+import * as LucideIcons from "lucide-react"
 
-const technologies = [
-    {category: "Programming Languages", icon: Code, skills: ["C++20", "C", "Assembly x86", "JavaScript", "TypeScript", "Python", "C#", "Java", "SQL"]},
-    {category: "Cryptography & Security", icon: Code, skills: ["Homomorphic Encryption (BFV/CKKS)", "SHA3-512", "Crypto++", "Neural Network Cryptography", "Post-Quantum Algorithms"]},
-    {category: "Frontend", icon: Globe, skills: ["React", "Next.js", "Tailwind CSS", "Framer Motion"]},
-    {category: "Backend", icon: Server, skills: ["Node.js", "ASP.NET", "REST APIs", "Token Authentication", "JWT"]},
-    {category: "DevOps & Tools", icon: Puzzle, skills: ["Git", "Docker", "Redis", "Caddy", "CMake", "FFmpeg"]},
-    {category: "Database", icon: Database, skills: ["SQLite", "Firebase", "MSSQL"]},
-    {category: "Languages", icon: LanguagesIcon, skills: ["Russian - native", "English - B2", "Hebrew - A2", "German - A1"]},
+type TechSkill = {
+    id: string
+    category_id: string
+    skill_name: string
+    display_order: number
+}
 
-]
+type TechCategory = {
+    id: string
+    name: string
+    icon_name: string
+    display_order: number
+    skills: TechSkill[]
+}
 
 export default function AboutPage() {
+    const [technologies, setTechnologies] = useState<TechCategory[]>([])
+    const [aboutContent, setAboutContent] = useState<any>(null)
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        fetchContent()
+    }, [])
+
+    const fetchContent = async () => {
+        try {
+            const [techResponse, aboutResponse] = await Promise.all([
+                fetch("/api/content/tech-categories"),
+                fetch("/api/content/about")
+            ])
+
+            const techData = await techResponse.json()
+            const aboutData = await aboutResponse.json()
+
+            setTechnologies(techData || [])
+            setAboutContent(aboutData)
+        } catch (error) {
+            console.error("Error fetching content:", error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const getIcon = (iconName: string) => {
+        const Icon = (LucideIcons as any)[iconName] || LucideIcons.Code
+        return Icon
+    }
+
+    if (loading) {
+        return (
+            <div className="min-h-screen pt-20 flex items-center justify-center">
+                <LucideIcons.Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+        )
+    }
     return (
         <div className="min-h-screen pt-20">
             <div className="container mx-auto px-4 py-12">
@@ -36,63 +80,59 @@ export default function AboutPage() {
                     >
                         <Card>
                             <CardContent className="p-8">
-                                <div className="prose prose-neutral dark:prose-invert max-w-none">
-                                    <p className="text-lg leading-relaxed mb-6">
-                                        I'm Artemiy Pankratov, a software developer specializing in cryptography, data protection, and secure systems design. Since 2022, I've been building applications that push the boundaries of security, from deterministic password generators using SHA3-512 hashing to neural network-based cryptographic protocols with homomorphic encryption.
-                                    </p>
-
-                                    <p className="text-lg leading-relaxed mb-6">
-                                        My current focus is <strong>SSNS (Secure Split-Neural Synchronization)</strong> - a revolutionary post-quantum cryptographic protocol that combines homomorphic encryption (BFV/CKKS), neural network synchronization, and privacy-preserving machine learning. This C++ implementation enables secure key generation between IoT devices and servers without transmitting sensitive data over the network.
-                                    </p>
-
-                                    <p className="text-lg leading-relaxed mb-6">
-                                        On GitHub, you'll find projects like <strong>PasswordGenerator</strong> (C++ application using Crypto++ and SHA3-512 for deterministic password generation with master password protection), <strong>KioskUdBet</strong> (enterprise C#/.NET MAUI system serving 400+ users with custom JWT authentication and encrypted data transmission), <strong>orchestra-website</strong> (multilingual Next.js website with modern UI/UX), and various automation tools showcasing full-stack capabilities.
-                                    </p>
-
-                                    <p className="text-lg leading-relaxed">
-                                        Beyond coding, I'm deeply invested in academic cryptography research, exploring lattice-based encryption schemes, zero-knowledge proofs, and developing practical applications for emerging post-quantum algorithms. Based in Tel Aviv, Israel, I combine mathematical rigor with engineering pragmatism to build secure systems for the modern world.
-                                    </p>
-                                </div>
+                                {aboutContent?.page_title && (
+                                    <h2 className="text-3xl font-bold mb-6">{aboutContent.page_title}</h2>
+                                )}
+                                {aboutContent?.page_subtitle && (
+                                    <p className="text-xl text-muted-foreground mb-8">{aboutContent.page_subtitle}</p>
+                                )}
+                                {aboutContent?.biography && (
+                                    <div className="prose prose-neutral dark:prose-invert max-w-none">
+                                        <p className="text-lg leading-relaxed whitespace-pre-line">{aboutContent.biography}</p>
+                                    </div>
+                                )}
                             </CardContent>
                         </Card>
                     </motion.div>
 
-                    <motion.div initial={{opacity: 0, y: 20}} animate={{opacity: 1, y: 0}} transition={{delay: 0.4}}>
-                        <h2 className="text-2xl font-bold mb-8 text-center">Technologies & Skills</h2>
+                    {technologies.length > 0 && (
+                        <motion.div initial={{opacity: 0, y: 20}} animate={{opacity: 1, y: 0}} transition={{delay: 0.4}}>
+                            <h2 className="text-2xl font-bold mb-8 text-center">Technologies & Skills</h2>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {technologies.map((tech, index) => {
-                                const Icon = tech.icon
-                                return (
-                                    <motion.div
-                                        key={tech.category}
-                                        initial={{opacity: 0, y: 20}}
-                                        animate={{opacity: 1, y: 0}}
-                                        transition={{delay: 0.1 * index}}
-                                        whileHover={{y: -5}}
-                                    >
-                                        <Card className="h-full">
-                                            <CardHeader>
-                                                <CardTitle className="flex items-center gap-2">
-                                                    <Icon className="w-5 h-5 text-primary"/>
-                                                    {tech.category}
-                                                </CardTitle>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {tech.skills.map((skill) => (
-                                                        <Badge key={skill} variant="secondary">
-                                                            {skill}
-                                                        </Badge>
-                                                    ))}
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-                                )
-                            })}
-                        </div>
-                    </motion.div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {technologies.map((tech, index) => {
+                                    const Icon = getIcon(tech.icon_name)
+                                    return (
+                                        <motion.div
+                                            key={tech.id}
+                                            initial={{opacity: 0, y: 20}}
+                                            animate={{opacity: 1, y: 0}}
+                                            transition={{delay: 0.1 * index}}
+                                            whileHover={{y: -5}}
+                                        >
+                                            <Card className="h-full">
+                                                <CardHeader>
+                                                    <CardTitle className="flex items-center gap-2">
+                                                        <Icon className="w-5 h-5 text-primary"/>
+                                                        {tech.name}
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {tech.skills.map((skill) => (
+                                                            <Badge key={skill.id} variant="secondary">
+                                                                {skill.skill_name}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
+                                    )
+                                })}
+                            </div>
+                        </motion.div>
+                    )}
                 </motion.div>
             </div>
         </div>

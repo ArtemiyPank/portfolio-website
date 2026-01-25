@@ -21,6 +21,14 @@ function initDatabase() {
   const initSql = fs.readFileSync(schemaPath, 'utf8');
 
   db.exec(initSql);
+
+  // Run content management migration to create all content tables with default data
+  const migrationPath = path.join(process.cwd(), 'scripts', 'migrate-content-management.sql');
+  if (fs.existsSync(migrationPath)) {
+    const migrationSql = fs.readFileSync(migrationPath, 'utf8');
+    db.exec(migrationSql);
+    console.log('✅ Content management tables created with default data');
+  }
 }
 
 module.exports = { initDatabase, db };

@@ -1,12 +1,17 @@
 "use client"
 
+import { useEffect } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import rehypeHighlight from "rehype-highlight"
 import rehypeRaw from "rehype-raw"
 import { cn } from "@/lib/utils"
 import type { Components } from "react-markdown"
+
+// Import both light and dark themes
+import "highlight.js/styles/github.css"
 import "highlight.js/styles/github-dark.css"
+import "./markdown.css"
 
 interface MarkdownRendererProps {
     content: string
@@ -14,6 +19,21 @@ interface MarkdownRendererProps {
 }
 
 export function MarkdownRenderer({ content, className }: MarkdownRendererProps) {
+    useEffect(() => {
+        // Dynamically switch highlight.js theme based on system theme
+        const darkModeQuery = window.matchMedia("(prefers-color-scheme: dark)")
+
+        const updateTheme = (e: MediaQueryListEvent | MediaQueryList) => {
+            const isDark = e.matches
+            // You can dynamically load different themes here if needed
+        }
+
+        updateTheme(darkModeQuery)
+        darkModeQuery.addEventListener("change", updateTheme)
+
+        return () => darkModeQuery.removeEventListener("change", updateTheme)
+    }, [])
+
     const components: Components = {
         // Custom heading styles
         h1: ({ children }) => <h1 className="text-3xl font-bold mb-6 pb-2 border-b border-border">{children}</h1>,
@@ -27,9 +47,17 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
         p: ({ children }) => <p className="mb-4 leading-7">{children}</p>,
 
         // Custom list styles
-        ul: ({ children }) => <ul className="mb-4 ml-6 list-disc space-y-1">{children}</ul>,
-        ol: ({ children }) => <ol className="mb-4 ml-6 list-decimal space-y-1">{children}</ol>,
-        li: ({ children }) => <li className="leading-7">{children}</li>,
+        ul: ({ children }) => <ul className="mb-4 ml-6 list-disc space-y-2">{children}</ul>,
+        ol: ({ children }) => <ol className="mb-4 ml-6 list-decimal space-y-2">{children}</ol>,
+        li: ({ children, ...props }) => {
+            // Support for task lists (checkboxes)
+            const hasCheckbox = props.className?.includes("task-list-item")
+            return (
+                <li className={cn("leading-7", hasCheckbox && "list-none -ml-6")} {...props}>
+                    {children}
+                </li>
+            )
+        },
 
         // Custom code styles
         code: ({ children, className, ...props }) => {
@@ -38,18 +66,22 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
 
             if (isInline) {
                 return (
-                    <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono" {...props}>
+                    <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-foreground border" {...props}>
                         {children}
                     </code>
                 )
             }
             return (
-                <code className={className} {...props}>
+                <code className={cn("text-sm", className)} {...props}>
                     {children}
                 </code>
             )
         },
-        pre: ({ children }) => <pre className="bg-muted p-4 rounded-lg overflow-x-auto mb-4 border">{children}</pre>,
+        pre: ({ children }) => (
+            <pre className="bg-muted/50 dark:bg-muted p-4 rounded-lg overflow-x-auto mb-6 border border-border shadow-sm">
+                {children}
+            </pre>
+        ),
 
         // Custom blockquote styles
         blockquote: ({ children }) => (
@@ -58,13 +90,17 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
 
         // Custom table styles
         table: ({ children }) => (
-            <div className="overflow-x-auto mb-4">
-                <table className="min-w-full border-collapse border border-border">{children}</table>
+            <div className="overflow-x-auto mb-6 rounded-lg border border-border shadow-sm">
+                <table className="min-w-full divide-y divide-border">{children}</table>
             </div>
         ),
-        thead: ({ children }) => <thead className="bg-muted">{children}</thead>,
-        th: ({ children }) => <th className="border border-border px-4 py-2 text-left font-semibold">{children}</th>,
-        td: ({ children }) => <td className="border border-border px-4 py-2">{children}</td>,
+        thead: ({ children }) => <thead className="bg-muted/50">{children}</thead>,
+        tbody: ({ children }) => <tbody className="bg-background divide-y divide-border">{children}</tbody>,
+        th: ({ children }) => (
+            <th className="px-4 py-3 text-left text-sm font-semibold text-foreground">{children}</th>
+        ),
+        td: ({ children }) => <td className="px-4 py-3 text-sm text-muted-foreground">{children}</td>,
+        tr: ({ children }) => <tr className="hover:bg-muted/30 transition-colors">{children}</tr>,
 
         // Custom link styles
         a: ({ href, children }) => (
@@ -83,7 +119,20 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
     }
 
     return (
-        <div className={cn("prose prose-neutral dark:prose-invert max-w-none", className)}>
+        <div
+            className={cn(
+                "prose prose-neutral dark:prose-invert max-w-none",
+                "prose-headings:scroll-mt-20",
+                "prose-a:text-primary prose-a:no-underline hover:prose-a:underline",
+                "prose-code:text-foreground prose-code:font-mono",
+                "prose-pre:bg-transparent prose-pre:p-0",
+                "prose-img:rounded-lg prose-img:border prose-img:shadow-md",
+                "prose-hr:border-border",
+                "prose-blockquote:border-primary/50",
+                "prose-strong:text-foreground prose-strong:font-semibold",
+                className
+            )}
+        >
             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight, rehypeRaw]} components={components}>
                 {content}
             </ReactMarkdown>

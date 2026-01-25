@@ -1,7 +1,9 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Music, Headphones, Guitar } from "lucide-react"
+import { Headphones, Loader2 } from "lucide-react"
+import * as LucideIcons from "lucide-react"
 import {
   Card,
   CardContent,
@@ -11,58 +13,92 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
-const musicalJourney = [
-  {
-    instrument: "Violin",
-    icon: Music,
-    years: "Since age 6",
-    level: "Advanced",
-    description:
-        "Started violin at the A. A. Alyabyev Music School at age 6; after moving to Israel, joined the Atid Raziel youth orchestra, which repeatedly competed in and won international competitions.",
-    achievements: [
-      "Multiple international competition wins with Atid Raziel orchestra",
-      "Featured soloist at school and community recitals",
-    ],
-  },
-  {
-    instrument: "Piano",
-    icon: Music,
-    years: "7 grades completed",
-    level: "Advanced",
-    description:
-        "Studied piano in parallel at A. A. Alyabyev Music School, completing all 7 grade examinations with distinction. Accompanied ensembles and soloists during school concerts.",
-    achievements: [
-      "Grade 7 piano diploma",
-      "Accompanied school choir and chamber performances",
-      "Performed solo recital pieces at local festivals",
-    ],
-  },
-]
+type MusicContent = {
+  id: string
+  page_title: string
+  page_subtitle: string
+  journey_section_title: string
+  favorites_section_title: string
+}
 
-const favoriteMusic = [
-  {
-    genre: "Classical",
-    icon: Music,
-    artists: ["Vivaldi", "Grieg", "Rachmaninoff", "Bach", "Mozart"],
-  },
-  {
-    genre: "Heavy Rock / Metal",
-    icon: Headphones,
-    artists: ["Metallica", "Rammstein", "Led Zeppelin", "Sabaton", "Iron Maiden"],
-  },
-  {
-    genre: "Classic Rock",
-    icon: Guitar,
-    artists: ["Deep Purple", "AC/DC", "Queen", "The Rolling Stones", "Pink Floyd"],
-  },
-  {
-    genre: "Other",
-    icon: Music,
-    artists: ["Jazz (Miles Davis)", "Electronic (Daft Punk)", "Folk (Simon & Garfunkel)"],
-  },
-]
+type MusicalAchievement = {
+  id: string
+  journey_id: string
+  achievement_text: string
+  display_order: number
+}
+
+type MusicalJourney = {
+  id: string
+  instrument: string
+  icon_name: string
+  years: string
+  level: string
+  description: string
+  display_order: number
+  achievements: MusicalAchievement[]
+}
+
+type FavoriteArtist = {
+  id: string
+  genre_id: string
+  artist_name: string
+  display_order: number
+}
+
+type MusicGenre = {
+  id: string
+  genre_name: string
+  icon_name: string
+  display_order: number
+  artists: FavoriteArtist[]
+}
 
 export default function MusicPage() {
+  const [content, setContent] = useState<MusicContent | null>(null)
+  const [journey, setJourney] = useState<MusicalJourney[]>([])
+  const [genres, setGenres] = useState<MusicGenre[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchContent()
+  }, [])
+
+  const fetchContent = async () => {
+    try {
+      const [contentResponse, journeyResponse, genresResponse] = await Promise.all([
+        fetch("/api/content/music"),
+        fetch("/api/content/musical-journey"),
+        fetch("/api/content/music-genres")
+      ])
+
+      const contentData = await contentResponse.json()
+      const journeyData = await journeyResponse.json()
+      const genresData = await genresResponse.json()
+
+      setContent(contentData)
+      setJourney(journeyData || [])
+      setGenres(genresData || [])
+    } catch (error) {
+      console.error("Error fetching music content:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getIcon = (iconName: string) => {
+    const Icon = (LucideIcons as any)[iconName] || LucideIcons.Music
+    return Icon
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen pt-20 flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    )
+  }
+
   return (
       <div className="min-h-screen pt-20 bg-background">
         <div className="container mx-auto px-4 py-12">
@@ -72,9 +108,11 @@ export default function MusicPage() {
               animate={{ opacity: 1, y: 0 }}
               className="max-w-4xl mx-auto text-center mb-16"
           >
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Music & Me</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+              {content?.page_title || "Music & Me"}
+            </h1>
             <p className="text-muted-foreground text-lg">
-              The soundtrack to my life and creative journey
+              {content?.page_subtitle || "The soundtrack to my life and creative journey"}
             </p>
           </motion.div>
 
@@ -86,16 +124,21 @@ export default function MusicPage() {
               className="max-w-4xl mx-auto mb-16"
           >
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              <Music className="w-6 h-6" />
-              My Musical Journey
+              {(() => {
+                const Icon = getIcon("Music")
+                return <Icon className="w-6 h-6" />
+              })()}
+              {content?.journey_section_title || "My Musical Journey"}
             </h2>
 
             <div className="space-y-6">
-              {musicalJourney.map((item, index) => {
-                const Icon = item.icon
+              {journey
+                .sort((a, b) => a.display_order - b.display_order)
+                .map((item, index) => {
+                const Icon = getIcon(item.icon_name)
                 return (
                     <motion.div
-                        key={index}
+                        key={item.id}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.1 * index }}
@@ -116,20 +159,24 @@ export default function MusicPage() {
                             {item.description}
                           </CardDescription>
                         </CardHeader>
-                        <CardContent>
-                          <h4 className="font-semibold mb-2">Achievements</h4>
-                          <ul className="space-y-1">
-                            {item.achievements.map((ach, i) => (
-                                <li
-                                    key={i}
-                                    className="flex items-start gap-2 text-sm"
-                                >
-                                  <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
-                                  {ach}
-                                </li>
-                            ))}
-                          </ul>
-                        </CardContent>
+                        {item.achievements && item.achievements.length > 0 && (
+                          <CardContent>
+                            <h4 className="font-semibold mb-2">Achievements</h4>
+                            <ul className="space-y-1">
+                              {item.achievements
+                                .sort((a, b) => a.display_order - b.display_order)
+                                .map((ach) => (
+                                    <li
+                                        key={ach.id}
+                                        className="flex items-start gap-2 text-sm"
+                                    >
+                                      <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                                      {ach.achievement_text}
+                                    </li>
+                                ))}
+                            </ul>
+                          </CardContent>
+                        )}
                       </Card>
                     </motion.div>
                 )
@@ -146,15 +193,17 @@ export default function MusicPage() {
           >
             <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
               <Headphones className="w-6 h-6" />
-              Favorite Genres &amp; Artists
+              {content?.favorites_section_title || "Favorite Genres & Artists"}
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {favoriteMusic.map((block, idx) => {
-                const Icon = block.icon
+              {genres
+                .sort((a, b) => a.display_order - b.display_order)
+                .map((block, idx) => {
+                const Icon = getIcon(block.icon_name)
                 return (
                     <motion.div
-                        key={idx}
+                        key={block.id}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 0.1 * idx }}
@@ -163,14 +212,16 @@ export default function MusicPage() {
                         <CardHeader>
                           <CardTitle className="flex items-center gap-3">
                             <Icon className="w-6 h-6 text-primary" />
-                            <span>{block.genre}</span>
+                            <span>{block.genre_name}</span>
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
                           <ul className="list-disc list-inside space-y-1 text-sm">
-                            {block.artists.map((artist, i) => (
-                                <li key={i}>{artist}</li>
-                            ))}
+                            {block.artists
+                              .sort((a, b) => a.display_order - b.display_order)
+                              .map((artist) => (
+                                  <li key={artist.id}>{artist.artist_name}</li>
+                              ))}
                           </ul>
                         </CardContent>
                       </Card>

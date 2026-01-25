@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { ArrowLeft, Github, ExternalLink, Calendar, Tag, FileText, AlertCircle, Loader2 } from "lucide-react"
+import { ArrowLeft, Github, ExternalLink, Tag, FileText, AlertCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -100,14 +100,6 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         }
     }
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        })
-    }
-
     if (loading) {
         return (
             <div className="min-h-screen pt-20 flex items-center justify-center">
@@ -168,9 +160,15 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
                                     {project.featured && <Badge variant="secondary">Featured</Badge>}
                                 </div>
 
-                                <p className="text-lg text-muted-foreground">{project.short_description}</p>
+                                {project.short_description && (
+                                    <p className="text-lg text-muted-foreground leading-relaxed">{project.short_description}</p>
+                                )}
 
-                                {project.description && <p className="text-muted-foreground">{project.description}</p>}
+                                {project.description && (
+                                    <div className="mt-6 prose prose-sm dark:prose-invert max-w-none">
+                                        <MarkdownRenderer content={project.description} />
+                                    </div>
+                                )}
 
                                 {/* Tags */}
                                 <div className="flex flex-wrap gap-2">
@@ -199,20 +197,6 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
                                                 Live Demo
                                             </Link>
                                         </Button>
-                                    )}
-                                </div>
-
-                                {/* Project Metadata */}
-                                <div className="flex items-center gap-4 text-sm text-muted-foreground pt-4">
-                                    <div className="flex items-center gap-1">
-                                        <Calendar className="w-4 h-4" />
-                                        Created: {formatDate(project.created_at)}
-                                    </div>
-                                    {project.updated_at !== project.created_at && (
-                                        <div className="flex items-center gap-1">
-                                            <Calendar className="w-4 h-4" />
-                                            Updated: {formatDate(project.updated_at)}
-                                        </div>
                                     )}
                                 </div>
                             </div>

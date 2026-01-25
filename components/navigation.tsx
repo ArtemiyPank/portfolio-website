@@ -105,24 +105,31 @@ export function Navigation() {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="md:hidden mt-4 pb-4 border-t border-border/50"
+                    transition={{ duration: 0.2 }}
+                    className="md:hidden mt-4 pb-4 border-t border-border/50 bg-background/95 backdrop-blur-md rounded-b-lg overflow-hidden"
                 >
                   <div className="flex flex-col space-y-4 pt-4">
-                    {[...navItems, ...easterEggs].map((item) => {
+                    {[...navItems, ...easterEggs].map((item, index) => {
                       const Icon = item.icon
                       return (
-                          <Link
+                          <motion.div
                               key={item.href}
-                              href={item.href}
-                              onClick={() => setIsOpen(false)}
-                              className={cn(
-                                  "flex items-center space-x-3 text-sm font-medium transition-colors hover:text-primary",
-                                  pathname === item.href ? "text-primary" : "text-muted-foreground",
-                              )}
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.05, duration: 0.2 }}
                           >
-                            <Icon className="w-4 h-4" />
-                            <span>{item.label}</span>
-                          </Link>
+                            <Link
+                                href={item.href}
+                                onClick={() => setIsOpen(false)}
+                                className={cn(
+                                    "flex items-center space-x-3 text-sm font-medium transition-colors hover:text-primary",
+                                    pathname === item.href ? "text-primary" : "text-muted-foreground",
+                                )}
+                            >
+                              <Icon className="w-4 h-4" />
+                              <span>{item.label}</span>
+                            </Link>
+                          </motion.div>
                       )
                     })}
                   </div>

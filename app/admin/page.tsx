@@ -422,13 +422,17 @@ function ProjectForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">Full Description</Label>
+          <Label htmlFor="description">Full Description (Optional)</Label>
           <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-              rows={4}
+              rows={6}
+              placeholder="Supports Markdown formatting. Leave empty to show only README from GitHub."
           />
+          <p className="text-xs text-muted-foreground">
+            Markdown supported. Will be shown on project details page before README section.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

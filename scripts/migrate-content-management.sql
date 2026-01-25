@@ -98,7 +98,7 @@ INSERT OR IGNORE INTO tech_categories (id, name, icon_name, display_order) VALUE
 
 -- Insert skills for Programming Languages
 INSERT OR IGNORE INTO tech_skills (category_id, skill_name, display_order) VALUES
-    ('cat_prog_lang', 'C++20', 1),
+    ('cat_prog_lang', 'C++', 1),
     ('cat_prog_lang', 'C', 2),
     ('cat_prog_lang', 'Assembly x86', 3),
     ('cat_prog_lang', 'JavaScript', 4),
@@ -114,7 +114,6 @@ INSERT OR IGNORE INTO tech_skills (category_id, skill_name, display_order) VALUE
     ('cat_crypto', 'SHA3-512', 2),
     ('cat_crypto', 'Crypto++', 3),
     ('cat_crypto', 'Neural Network Cryptography', 4),
-    ('cat_crypto', 'Post-Quantum Algorithms', 5);
 
 -- Insert skills for Frontend
 INSERT OR IGNORE INTO tech_skills (category_id, skill_name, display_order) VALUES
