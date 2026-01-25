@@ -69,16 +69,48 @@ export default function ContactPage() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    const formData = new FormData(e.currentTarget)
+    const data = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      subject: formData.get('subject'),
+      message: formData.get('message')
+    }
 
-    toast({
-      title: "Message sent!",
-      description: "Thank you for your message. I'll get back to you soon.",
-    })
+    try {
+      const response = await fetch('/api/contact/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      })
 
-    setIsSubmitting(false)
-    ;(e.target as HTMLFormElement).reset()
+      const result = await response.json()
+
+      if (response.ok) {
+        toast({
+          title: "Message sent!",
+          description: "Thank you for your message. I'll get back to you soon.",
+        })
+        ;(e.target as HTMLFormElement).reset()
+      } else {
+        toast({
+          title: "Failed to send message",
+          description: result.error || "Please try again later.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error)
+      toast({
+        title: "Failed to send message",
+        description: "Please try again later.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const socialLinks = [

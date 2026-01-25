@@ -22,10 +22,8 @@ export async function GET() {
         const contactContent = getContactContent();
 
         if (!contactContent) {
-            return NextResponse.json(
-                { error: "Contact content not found" },
-                { status: 404 }
-            );
+            // Return null instead of 404 to allow frontend to use defaults
+            return NextResponse.json(null);
         }
 
         return NextResponse.json(contactContent);

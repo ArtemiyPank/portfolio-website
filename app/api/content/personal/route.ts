@@ -24,10 +24,8 @@ export async function GET() {
         const personalInfo = getPersonalInfo();
 
         if (!personalInfo) {
-            return NextResponse.json(
-                { error: "Personal info not found" },
-                { status: 404 }
-            );
+            // Return null instead of 404 to allow frontend to use defaults
+            return NextResponse.json(null);
         }
 
         return NextResponse.json(personalInfo);

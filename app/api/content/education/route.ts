@@ -24,10 +24,8 @@ export async function GET() {
         const educationContent = getEducationContent();
 
         if (!educationContent) {
-            return NextResponse.json(
-                { error: "Education content not found" },
-                { status: 404 }
-            );
+            // Return null instead of 404 to allow frontend to use defaults
+            return NextResponse.json(null);
         }
 
         return NextResponse.json(educationContent);

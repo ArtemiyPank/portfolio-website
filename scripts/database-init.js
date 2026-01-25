@@ -22,12 +22,24 @@ function initDatabase() {
 
   db.exec(initSql);
 
-  // Run content management migration to create all content tables with default data
-  const migrationPath = path.join(process.cwd(), 'scripts', 'migrate-content-management.sql');
-  if (fs.existsSync(migrationPath)) {
-    const migrationSql = fs.readFileSync(migrationPath, 'utf8');
-    db.exec(migrationSql);
-    console.log('✅ Content management tables created with default data');
+  // Create content management tables
+  const contentTablesPath = path.join(process.cwd(), 'scripts', 'create-content-tables.sql');
+  if (fs.existsSync(contentTablesPath)) {
+    const contentTablesSql = fs.readFileSync(contentTablesPath, 'utf8');
+    db.exec(contentTablesSql);
+    console.log('✅ Content management tables created');
+  }
+
+  // Seed initial data
+  const seedScriptPath = path.join(process.cwd(), 'scripts', 'seed-initial-data.js');
+  if (fs.existsSync(seedScriptPath)) {
+    try {
+      const { seedData } = require(seedScriptPath);
+      seedData(db);
+    } catch (error) {
+      console.error('⚠️  Warning: Failed to seed initial data:', error.message);
+      console.log('ℹ️  You can manually seed data later using: node scripts/seed-initial-data.js');
+    }
   }
 }
 

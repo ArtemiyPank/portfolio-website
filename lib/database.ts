@@ -182,12 +182,13 @@ export function initDatabase() {
     const initSql = readFileSync(schemaPath, "utf8")
     db.exec(initSql)
 
+    // Temporarily disabled - SQL syntax error to be fixed
     // Run content management migration
-    const migrationPath = path.join(process.cwd(), "scripts", "migrate-content-management.sql")
-    if (existsSync(migrationPath)) {
-        const migrationSql = readFileSync(migrationPath, "utf8")
-        db.exec(migrationSql)
-    }
+    // const migrationPath = path.join(process.cwd(), "scripts", "migrate-content-management.sql")
+    // if (existsSync(migrationPath)) {
+    //     const migrationSql = readFileSync(migrationPath, "utf8")
+    //     db.exec(migrationSql)
+    // }
 }
 
 // Project operations

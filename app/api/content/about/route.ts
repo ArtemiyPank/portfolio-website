@@ -22,10 +22,8 @@ export async function GET() {
         const aboutContent = getAboutContent();
 
         if (!aboutContent) {
-            return NextResponse.json(
-                { error: "About content not found" },
-                { status: 404 }
-            );
+            // Return null instead of 404 to allow frontend to use defaults
+            return NextResponse.json(null);
         }
 
         return NextResponse.json(aboutContent);

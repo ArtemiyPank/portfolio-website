@@ -26,6 +26,11 @@ services:
       # Domain (for production)
       DOMAIN: "${DOMAIN:-localhost}"
 
+      # Email (Resend)
+      RESEND_API_KEY: "${RESEND_API_KEY:-}"
+      RESEND_FROM_EMAIL: "${RESEND_FROM_EMAIL:-onboarding@resend.dev}"
+      RESEND_TO_EMAIL: "${RESEND_TO_EMAIL:-ad.pankrat@gmail.com}"
+
     volumes:
       # Persist database
       - ./data:/app/data:z

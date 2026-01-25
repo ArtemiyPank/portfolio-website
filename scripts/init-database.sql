@@ -106,14 +106,14 @@ INSERT OR IGNORE INTO projects (title, description, short_description, image_url
     NULL,
     '["Node.js", "SQLite", "JavaScript"]',
     0
-  ),
-  (
-    'DungeonAdventureGameExercise',
-    'An object-oriented dungeon crawler game developed in Java 17+ demonstrating classic OOP design patterns and game architecture. The game features procedural dungeon generation algorithms, a turn-based combat system, inventory management mechanics, and a structured game loop architecture, with comprehensive unit testing using JUnit to ensure code quality and game logic correctness.',
-    'Java-based dungeon crawler with OOP design patterns',
-    NULL,
-    'https://github.com/ArtemiyPank/DungeonAdventureGameExercise',
-    NULL,
-    '["Java"]',
-    0
+--   ),
+--   (
+--     'DungeonAdventureGameExercise',
+--     'An object-oriented dungeon crawler game developed in Java 17+ demonstrating classic OOP design patterns and game architecture. The game features procedural dungeon generation algorithms, a turn-based combat system, inventory management mechanics, and a structured game loop architecture, with comprehensive unit testing using JUnit to ensure code quality and game logic correctness.',
+--     'Java-based dungeon crawler with OOP design patterns',
+--     NULL,
+--     'https://github.com/ArtemiyPank/DungeonAdventureGameExercise',
+--     NULL,
+--     '["Java"]',
+--     0
   );

@@ -49,20 +49,7 @@ CREATE TABLE IF NOT EXISTS about_content (
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT OR IGNORE INTO about_content (
-    id, page_title, page_subtitle, biography
-) VALUES (
-    'main',
-    'About Me',
-    'Get to know me better - my journey, skills, and passion for development',
-    'I''m Artemiy Pankratov, a software developer specializing in cryptography, data protection, and secure systems design. Since 2022, I''ve been building applications that push the boundaries of security, from deterministic password generators using SHA3-512 hashing to neural network-based cryptographic protocols with homomorphic encryption.
-
-My current focus is SSNS (Secure Split-Neural Synchronization) - a revolutionary post-quantum cryptographic protocol that combines homomorphic encryption (BFV/CKKS), neural network synchronization, and privacy-preserving machine learning. This C++ implementation enables secure key generation between IoT devices and servers without transmitting sensitive data over the network.
-
-On GitHub, you''ll find projects like PasswordGenerator (C++ application using Crypto++ and SHA3-512 for deterministic password generation with master password protection), KioskUdBet (enterprise C#/.NET MAUI system serving 400+ users with custom JWT authentication and encrypted data transmission), orchestra-website (multilingual Next.js website with modern UI/UX), and various automation tools showcasing full-stack capabilities.
-
-Beyond coding, I''m deeply invested in academic cryptography research, exploring lattice-based encryption schemes, zero-knowledge proofs, and developing practical applications for emerging post-quantum algorithms. Based in Tel Aviv, Israel, I combine mathematical rigor with engineering pragmatism to build secure systems for the modern world.'
-);
+INSERT OR IGNORE INTO about_content (id, page_title, page_subtitle, biography) VALUES ('main', 'About Me', 'Get to know me better - my journey, skills, and passion for development', 'I''m Artemiy Pankratov, a software developer specializing in cryptography, data protection, and secure systems design. Since 2022, I''ve been building applications that push the boundaries of security, from deterministic password generators using SHA3-512 hashing to neural network-based cryptographic protocols with homomorphic encryption.' || char(10) || char(10) || 'My current focus is SSNS (Secure Split-Neural Synchronization) - a revolutionary post-quantum cryptographic protocol that combines homomorphic encryption (BFV/CKKS), neural network synchronization, and privacy-preserving machine learning. This C++ implementation enables secure key generation between IoT devices and servers without transmitting sensitive data over the network.' || char(10) || char(10) || 'On GitHub, you''ll find projects like PasswordGenerator (C++ application using Crypto++ and SHA3-512 for deterministic password generation with master password protection), KioskUdBet (enterprise C#/.NET MAUI system serving 400+ users with custom JWT authentication and encrypted data transmission), orchestra-website (multilingual Next.js website with modern UI/UX), and various automation tools showcasing full-stack capabilities.' || char(10) || char(10) || 'Beyond coding, I''m deeply invested in academic cryptography research, exploring lattice-based encryption schemes, zero-knowledge proofs, and developing practical applications for emerging post-quantum algorithms. Based in Tel Aviv, Israel, I combine mathematical rigor with engineering pragmatism to build secure systems for the modern world.');
 
 -- ============================================================================
 -- TECHNOLOGIES & SKILLS
