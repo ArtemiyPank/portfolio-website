@@ -1,58 +1,77 @@
-version: '3.8'
-
 services:
   portfolio:
-    user: root
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: portfolio-app
+    user: "${UID:-1000}:${GID:-1000}"
     ports:
-      - "3001:3000"
+      - "${PORT:-3001}:3000"
     environment:
+      # Application
       NODE_ENV: production
-      ADMIN_PASSWORD: "${ADMIN_PASSWORD:-admin123}"
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+
+      # Authentication
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:-123}"
+      NEXTAUTH_SECRET: "${NEXTAUTH_SECRET:-nextauth_secret_here_change_in_production}"
+
+      # Database
       DATABASE_URL: "file:./data/portfolio.db"
+
+      # Public URL
       NEXT_PUBLIC_APP_URL: "${NEXT_PUBLIC_APP_URL:-http://localhost:3001}"
-      NEXTAUTH_SECRET: "${NEXTAUTH_SECRET:-your_secret_here}"
-    # Bind-mount the DB file and uploads folder directly from your project
+
+      # Domain (for production)
+      DOMAIN: "${DOMAIN:-localhost}"
+
     volumes:
-      - ./data:/app/data/:z
+      # Persist database
+      - ./data:/app/data:z
+
+      # Persist uploaded files
       - ./public/uploads:/app/public/uploads:z
-#      - portfolio_uploads:./public/uploads
+
     restart: unless-stopped
+
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/projects"]
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/api/projects', (res) => process.exit(res.statusCode === 200 ? 0 : 1))\""]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+
     networks:
       - portfolio_network
 
+  # Caddy reverse proxy (optional, for production)
   caddy:
     image: caddy:2-alpine
+    container_name: portfolio-caddy
     ports:
       - "80:80"
       - "443:443"
+      - "443:443/udp"  # HTTP/3
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - portfolio
+      portfolio:
+        condition: service_healthy
     restart: unless-stopped
     profiles:
       - production
     networks:
       - portfolio_network
 
-volumes:
-  portfolio_db:
-  portfolio_uploads:
-
-  caddy_data:
-  caddy_config:
-
 networks:
   portfolio_network:
     driver: bridge
+
+volumes:
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local

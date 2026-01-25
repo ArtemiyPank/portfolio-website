@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { projectsDb, initDatabase } from "@/lib/database";
+import { getAllProjects, getProjectById, createProject, initDatabase } from "@/lib/database";
 
 // Initialize database on first request
 let dbInitialized = false;
@@ -23,7 +23,7 @@ export async function GET() {
         ensureDbInitialized();
 
         console.log("Fetching projects from database...");
-        const projects = projectsDb.getAll();  // This should work now
+        const projects = getAllProjects();
         console.log(`Found ${projects.length} projects`);
 
         return NextResponse.json(projects);
@@ -32,6 +32,27 @@ export async function GET() {
         return NextResponse.json(
             {
                 error: "Failed to fetch projects",
+                details: error instanceof Error ? error.message : "Unknown error",
+            },
+            { status: 500 }
+        );
+    }
+}
+
+export async function POST(request: NextRequest) {
+    try {
+        ensureDbInitialized();
+
+        const data = await request.json();
+        const id = createProject(data);
+        const newProject = getProjectById(id);
+
+        return NextResponse.json(newProject, { status: 201 });
+    } catch (error) {
+        console.error("Error in POST /api/projects:", error);
+        return NextResponse.json(
+            {
+                error: "Failed to create project",
                 details: error instanceof Error ? error.message : "Unknown error",
             },
             { status: 500 }

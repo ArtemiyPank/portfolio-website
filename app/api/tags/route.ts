@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { tagsDb, initDatabase } from "@/lib/database"
+import { getAllTags, initDatabase } from "@/lib/database"
 
 // Initialize database on first request
 let dbInitialized = false
@@ -13,7 +13,7 @@ function ensureDbInitialized() {
 export async function GET() {
   try {
     ensureDbInitialized()
-    const tags = tagsDb.getAll()
+    const tags = getAllTags()
     return NextResponse.json(tags)
   } catch (error) {
     console.error("Error fetching tags:", error)

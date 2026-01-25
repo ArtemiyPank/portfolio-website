@@ -1,40 +1,4 @@
-const path = require("path")
-const fs = require("fs")
-
-// Создаем lib/database.js для Node.js
-const dbCode = `
-const Database = require('better-sqlite3');
-const path = require('path');
-const fs = require('fs');
-
-const dataDir = path.join(process.cwd(), 'data');
-const dbPath = path.join(dataDir, 'portfolio.db');
-const db = new Database(dbPath);
-
-// Enable foreign keys
-db.pragma('foreign_keys = ON');
-
-function initDatabase() {
-  // Read SQL schema from file
-  const schemaPath = path.join(process.cwd(), 'scripts', 'init-database.sql');
-  const initSql = fs.readFileSync(schemaPath, 'utf8');
-  
-  db.exec(initSql);
-}
-
-module.exports = { initDatabase, db };
-`
-
-// Создаем директорию lib если её нет
-if (!fs.existsSync("lib")) {
-  fs.mkdirSync("lib")
-}
-
-// Записываем файл database.js
-fs.writeFileSync("lib/database.js", dbCode)
-
-// Инициализируем базу данных
-const { initDatabase } = require("../lib/database.js")
+const { initDatabase } = require("./database-init.js")
 
 console.log("Initializing SQLite database...")
 try {

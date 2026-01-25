@@ -6,12 +6,13 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {Code, Database, Globe, Smartphone, Server, Palette, LanguagesIcon, Puzzle, } from "lucide-react"
 
 const technologies = [
-    {category: "Programming Languishes", icon: Code, skills: ["C++", "JavaScript", "TypeScript", "Python", "C#", "SQL"]},
+    {category: "Programming Languages", icon: Code, skills: ["C++20", "C", "Assembly x86", "JavaScript", "TypeScript", "Python", "C#", "Java", "SQL"]},
+    {category: "Cryptography & Security", icon: Code, skills: ["Homomorphic Encryption (BFV/CKKS)", "SHA3-512", "Crypto++", "Neural Network Cryptography", "Post-Quantum Algorithms"]},
     {category: "Frontend", icon: Globe, skills: ["React", "Next.js", "Tailwind CSS", "Framer Motion"]},
-    {category: "Backend", icon: Server, skills: ["Node.js", "ASP.NET"]},
-    {category: "Concepts", icon: Puzzle, skills: ["Git", "Docker", "Redis", "REST APIs", "Token Authentication", "JWT"]},
-    {category: "Database", icon: Database, skills: ["SQLite", "Firebase"]},
-    {category: "Languishes", icon: LanguagesIcon, skills: ["Russian - native", "English - B2", "Hebrew - A2", "German - A1"]},
+    {category: "Backend", icon: Server, skills: ["Node.js", "ASP.NET", "REST APIs", "Token Authentication", "JWT"]},
+    {category: "DevOps & Tools", icon: Puzzle, skills: ["Git", "Docker", "Redis", "Caddy", "CMake", "FFmpeg"]},
+    {category: "Database", icon: Database, skills: ["SQLite", "Firebase", "MSSQL"]},
+    {category: "Languages", icon: LanguagesIcon, skills: ["Russian - native", "English - B2", "Hebrew - A2", "German - A1"]},
 
 ]
 
@@ -37,30 +38,20 @@ export default function AboutPage() {
                             <CardContent className="p-8">
                                 <div className="prose prose-neutral dark:prose-invert max-w-none">
                                     <p className="text-lg leading-relaxed mb-6">
-                                        I’m Artemiy Pankratov, a full-stack developer who’s been writing code since 2022
-                                        with a strong foundation in mathematics and a deep interest in data protection
-                                        and cryptography. I’ve built modern, cross-platform applications that showcase
-                                        real-time features alongside custom token-based authentication (all without
-                                        relying on third-party libraries), as well as intelligent Telegram chatbots and
-                                        full-featured web services.
+                                        I'm Artemiy Pankratov, a software developer specializing in cryptography, data protection, and secure systems design. Since 2022, I've been building applications that push the boundaries of security, from deterministic password generators using SHA3-512 hashing to neural network-based cryptographic protocols with homomorphic encryption.
                                     </p>
 
                                     <p className="text-lg leading-relaxed mb-6">
-                                        On GitHub, you’ll find projects like KioskUdBet (a C#/.NET MAUI + ASP NET +
-                                        SQLite mobile + web API system for managing a dormitory kiosk with adaptive UI,
-                                        role-based REST endpoints, secure access/refresh tokens, cart/order workflows,
-                                        delivery tracking, and an admin panel), KioskWebCheckOut (a Node.js/SQLite web
-                                        app for product sales with category filtering, photo-backed counters, revenue
-                                        stats, and purchase analytics), and YouTubeDownloadBot (a
-                                        Python/yt-dlp/Redis-powered Telegram bot featuring asynchronous job queues,
-                                        FFmpeg conversion, duration/file-size safeguards, and robust error
-                                        logging). </p>
+                                        My current focus is <strong>SSNS (Secure Split-Neural Synchronization)</strong> - a revolutionary post-quantum cryptographic protocol that combines homomorphic encryption (BFV/CKKS), neural network synchronization, and privacy-preserving machine learning. This C++ implementation enables secure key generation between IoT devices and servers without transmitting sensitive data over the network.
+                                    </p>
+
+                                    <p className="text-lg leading-relaxed mb-6">
+                                        On GitHub, you'll find projects like <strong>PasswordGenerator</strong> (C++ application using Crypto++ and SHA3-512 for deterministic password generation with master password protection), <strong>KioskUdBet</strong> (enterprise C#/.NET MAUI system serving 400+ users with custom JWT authentication and encrypted data transmission), <strong>orchestra-website</strong> (multilingual Next.js website with modern UI/UX), and various automation tools showcasing full-stack capabilities.
+                                    </p>
 
                                     <p className="text-lg leading-relaxed">
-                                        When I’m not building features, you’ll find me exploring advanced
-                                        data-protection techniques, contributing to open-source projects, or diving
-                                        deeper into distributed systems and server-sent events to level up my real-time
-                                        architectures. </p>
+                                        Beyond coding, I'm deeply invested in academic cryptography research, exploring lattice-based encryption schemes, zero-knowledge proofs, and developing practical applications for emerging post-quantum algorithms. Based in Tel Aviv, Israel, I combine mathematical rigor with engineering pragmatism to build secure systems for the modern world.
+                                    </p>
                                 </div>
                             </CardContent>
                         </Card>

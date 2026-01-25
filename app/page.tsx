@@ -96,7 +96,7 @@ export default function HomePage() {
                             animate={{opacity: 1, y: 0}}
                             transition={{delay: 0.4, duration: 0.8}}
                         >
-                            Developer crafting digital experiences with modern technologies
+                            Cryptography Specialist & Security-Focused Developer
                         </motion.p>
 
                         <motion.div

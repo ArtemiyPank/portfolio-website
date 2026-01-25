@@ -1,6 +1,50 @@
+# Dependencies
 node_modules
 npm-debug.log
-Dockerfile*
-.dockerignore
+
+# Next.js
+.next
+out
+
+# Database (will be mounted as volume)
+data/portfolio.db
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Git
 .git
 .gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Uploads (will be mounted as volume)
+public/uploads/*
+
+# Logs
+*.log
+
+# Testing
+coverage
+.nyc_output
+
+# Documentation
+README.md
+docs

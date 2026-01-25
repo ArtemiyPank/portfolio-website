@@ -1,0 +1,50 @@
+services:
+  portfolio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: portfolio-app
+    # user mapping убран - может вызывать проблемы при запуске от root
+    ports:
+      - "3000:3000"  # Проброс порта для доступа и диагностики
+    environment:
+      # Application
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+
+      # Authentication
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
+      NEXTAUTH_SECRET: "${NEXTAUTH_SECRET}"
+
+      # Database
+      DATABASE_URL: "file:./data/portfolio.db"
+
+      # Public URL
+      NEXT_PUBLIC_APP_URL: "${NEXT_PUBLIC_APP_URL}"
+
+      # Domain (for production)
+      DOMAIN: "${DOMAIN}"
+
+    volumes:
+      # Persist database
+      - ./data:/app/data
+
+      # Persist uploaded files
+      - ./public/uploads:/app/public/uploads
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/api/projects', (res) => process.exit(res.statusCode === 200 ? 0 : 1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    networks:
+      - web  # Подключаемся к сети общего Caddy
+
+networks:
+  web:
+    external: true  # Используем существующую сеть Caddy
