@@ -24,6 +24,7 @@ type EducationEntry = {
     credentials: string
     period: string
     location: string
+    website_url?: string | null
     display_order: number
     highlights: EducationHighlight[]
     created_at: string
@@ -62,6 +63,7 @@ export function EducationManager() {
         credentials: string
         period: string
         location: string
+        website_url?: string
     }) => {
         try {
             if (editingEntry) {
@@ -221,6 +223,11 @@ export function EducationManager() {
                                     <CardTitle>{entry.institution}</CardTitle>
                                     <CardDescription>
                                         {entry.credentials} • {entry.period} • {entry.location}
+                                        {entry.website_url && (
+                                            <span className="block mt-1 text-xs text-primary">
+                                                🔗 {entry.website_url}
+                                            </span>
+                                        )}
                                     </CardDescription>
                                 </div>
                                 <div className="flex gap-2">
@@ -265,7 +272,7 @@ function EducationEntryForm({
     onCancel,
 }: {
     entry: EducationEntry | null
-    onSave: (data: { institution: string; credentials: string; period: string; location: string }) => void
+    onSave: (data: { institution: string; credentials: string; period: string; location: string; website_url?: string }) => void
     onCancel: () => void
 }) {
     const [formData, setFormData] = useState({
@@ -273,11 +280,17 @@ function EducationEntryForm({
         credentials: entry?.credentials || "",
         period: entry?.period || "",
         location: entry?.location || "",
+        website_url: entry?.website_url || "",
     })
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
-        onSave(formData)
+        // Clean up empty website_url
+        const dataToSave = {
+            ...formData,
+            website_url: formData.website_url?.trim() || undefined,
+        }
+        onSave(dataToSave)
     }
 
     return (
@@ -323,6 +336,17 @@ function EducationEntryForm({
                     onChange={(e) => setFormData((prev) => ({ ...prev, location: e.target.value }))}
                     placeholder="e.g., Cambridge, MA, USA"
                     required
+                />
+            </div>
+
+            <div className="space-y-2">
+                <Label htmlFor="website_url">Website URL (optional)</Label>
+                <Input
+                    id="website_url"
+                    type="url"
+                    value={formData.website_url}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, website_url: e.target.value }))}
+                    placeholder="e.g., https://example.com"
                 />
             </div>
 

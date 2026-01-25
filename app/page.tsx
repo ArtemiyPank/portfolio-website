@@ -2,7 +2,7 @@
 
 import {useState, useEffect} from "react"
 import {motion} from "framer-motion"
-import {ArrowDown, Github, Linkedin, Mail, ExternalLink, Instagram, Twitter} from "lucide-react"
+import {ArrowDown, Github, Linkedin, Mail, ExternalLink, Instagram} from "lucide-react"
 import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
@@ -32,7 +32,6 @@ type PersonalInfo = {
     github_url: string | null
     linkedin_url: string | null
     instagram_url: string | null
-    twitter_url: string | null
     location: string | null
 }
 
@@ -154,13 +153,6 @@ export default function HomePage() {
                                     <Button variant="outline" size="icon" asChild>
                                         <Link href={personalInfo.instagram_url} target="_blank">
                                             <Instagram className="w-4 h-4"/>
-                                        </Link>
-                                    </Button>
-                                )}
-                                {personalInfo?.twitter_url && (
-                                    <Button variant="outline" size="icon" asChild>
-                                        <Link href={personalInfo.twitter_url} target="_blank">
-                                            <Twitter className="w-4 h-4"/>
                                         </Link>
                                     </Button>
                                 )}

@@ -16,19 +16,11 @@ const db = new Database(dbPath);
 db.pragma('foreign_keys = ON');
 
 function initDatabase() {
-  // Read SQL schema from file
+  // Read and execute database schema (all tables)
   const schemaPath = path.join(process.cwd(), 'scripts', 'init-database.sql');
   const initSql = fs.readFileSync(schemaPath, 'utf8');
-
   db.exec(initSql);
-
-  // Create content management tables
-  const contentTablesPath = path.join(process.cwd(), 'scripts', 'create-content-tables.sql');
-  if (fs.existsSync(contentTablesPath)) {
-    const contentTablesSql = fs.readFileSync(contentTablesPath, 'utf8');
-    db.exec(contentTablesSql);
-    console.log('✅ Content management tables created');
-  }
+  console.log('✅ Database schema initialized');
 
   // Seed initial data
   const seedScriptPath = path.join(process.cwd(), 'scripts', 'seed-initial-data.js');

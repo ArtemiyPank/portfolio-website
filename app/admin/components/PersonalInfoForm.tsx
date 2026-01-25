@@ -16,7 +16,6 @@ type PersonalInfo = {
     github_url: string | null
     linkedin_url: string | null
     instagram_url: string | null
-    twitter_url: string | null
     location: string | null
 }
 
@@ -193,17 +192,6 @@ export function PersonalInfoForm() {
                                     value={data.instagram_url || ""}
                                     onChange={(e) => handleChange("instagram_url", e.target.value)}
                                     placeholder="https://instagram.com/username"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="twitter_url">Twitter/X URL</Label>
-                                <Input
-                                    id="twitter_url"
-                                    type="url"
-                                    value={data.twitter_url || ""}
-                                    onChange={(e) => handleChange("twitter_url", e.target.value)}
-                                    placeholder="https://x.com/username"
                                 />
                             </div>
                         </div>

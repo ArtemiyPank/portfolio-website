@@ -47,7 +47,6 @@ export type PersonalInfo = {
     github_url: string | null
     linkedin_url: string | null
     instagram_url: string | null
-    twitter_url: string | null
     location: string | null
     created_at: string
     updated_at: string
@@ -109,6 +108,7 @@ export type EducationEntry = {
     credentials: string
     period: string
     location: string
+    website_url?: string | null
     display_order: number
     highlights: EducationHighlight[]
     created_at: string
@@ -515,10 +515,10 @@ export function createEducationEntry(entry: Omit<EducationEntry, "id" | "highlig
     const displayOrder = (result.max_order ?? -1) + 1
 
     const stmt = db.prepare(`
-        INSERT INTO education_entries (id, institution, credentials, period, location, display_order)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO education_entries (id, institution, credentials, period, location, website_url, display_order)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     `)
-    stmt.run(id, entry.institution, entry.credentials, entry.period, entry.location, displayOrder)
+    stmt.run(id, entry.institution, entry.credentials, entry.period, entry.location, entry.website_url ?? null, displayOrder)
     return id
 }
 

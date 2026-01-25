@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import {motion} from "framer-motion"
-import {Award, Calendar, GraduationCap, MapPin, Loader2} from "lucide-react"
+import {Award, Calendar, GraduationCap, MapPin, Loader2, ExternalLink} from "lucide-react"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
 
@@ -26,6 +26,7 @@ type EducationEntry = {
     credentials: string
     period: string
     location: string
+    website_url?: string | null
     display_order: number
     highlights: EducationHighlight[]
 }
@@ -114,6 +115,17 @@ export default function EducationPage() {
                                         <MapPin className="w-5 h-5"/>
                                         {edu.location}
                                     </span>
+                                    {edu.website_url && (
+                                        <a
+                                            href={edu.website_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-1 text-primary hover:underline"
+                                        >
+                                            <ExternalLink className="w-5 h-5"/>
+                                            Official Website
+                                        </a>
+                                    )}
                                 </CardDescription>
                             </CardHeader>
                             {edu.highlights && edu.highlights.length > 0 && (

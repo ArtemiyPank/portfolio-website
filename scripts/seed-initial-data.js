@@ -9,8 +9,8 @@ function seedData(db) {
     const personalStmt = db.prepare(`
         INSERT OR IGNORE INTO personal_info (
             id, full_name, tagline, email, telegram,
-            github_url, linkedin_url, instagram_url, twitter_url, location
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            github_url, linkedin_url, instagram_url, location
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     personalStmt.run(
@@ -18,23 +18,22 @@ function seedData(db) {
         'Artemiy Pankratov',
         'Cryptography Specialist & Security-Focused Developer',
         'ad.pankrat@gmail.com',
-        '@adpankrat',
+        '@artemiypank',
         'https://github.com/ArtemiyPank',
         'https://www.linkedin.com/in/artemiy-pankratov-251059326/',
         'https://www.instagram.com/pankratov_artemiy/',
-        'https://x.com/AdPankrat',
         'Tel Aviv, Israel'
     );
     console.log('✅ Personal info inserted');
 
     // Insert about content
-    const aboutBio = `I'm Artemiy Pankratov, a software developer specializing in cryptography, data protection, and secure systems design. Since 2022, I've been building applications that push the boundaries of security, from deterministic password generators using SHA3-512 hashing to neural network-based cryptographic protocols with homomorphic encryption.
+    const aboutBio = `I'm Artemiy Pankratov, a software developer specializing in cryptography, data protection, and secure systems design. I build applications focused on security - from deterministic password generators using SHA3-512 to neural network-based cryptographic protocols with homomorphic encryption.
 
-My current focus is SSNS (Secure Split-Neural Synchronization) - a revolutionary post-quantum cryptographic protocol that combines homomorphic encryption (BFV/CKKS), neural network synchronization, and privacy-preserving machine learning. This C++ implementation enables secure key generation between IoT devices and servers without transmitting sensitive data over the network.
+My current focus is SSNS (Secure Split-Neural Synchronization) - a post-quantum cryptographic protocol combining homomorphic encryption (BFV/CKKS) and neural network synchronization for secure key generation between IoT devices and servers.
 
-On GitHub, you'll find projects like PasswordGenerator (C++ application using Crypto++ and SHA3-512 for deterministic password generation with master password protection), KioskUdBet (enterprise C#/.NET MAUI system serving 400+ users with custom JWT authentication and encrypted data transmission), orchestra-website (multilingual Next.js website with modern UI/UX), and various automation tools showcasing full-stack capabilities.
+I have hands-on experience developing custom authentication systems from scratch, including token-based authentication with JWT for enterprise applications serving 400+ active users with real-time secure data transmission.
 
-Beyond coding, I'm deeply invested in academic cryptography research, exploring lattice-based encryption schemes, zero-knowledge proofs, and developing practical applications for emerging post-quantum algorithms. Based in Tel Aviv, Israel, I combine mathematical rigor with engineering pragmatism to build secure systems for the modern world.`;
+Based in Tel Aviv, Israel, I combine mathematical rigor with engineering pragmatism to build secure systems for the modern world.`;
 
     const aboutStmt = db.prepare(`
         INSERT OR IGNORE INTO about_content (id, page_title, page_subtitle, biography)
@@ -44,7 +43,7 @@ Beyond coding, I'm deeply invested in academic cryptography research, exploring 
     aboutStmt.run(
         'main',
         'About Me',
-        'Get to know me better - my journey, skills, and passion for development',
+        null,
         aboutBio
     );
     console.log('✅ About content inserted');
@@ -155,22 +154,33 @@ Beyond coding, I'm deeply invested in academic cryptography research, exploring 
     educationContentStmt.run('main', educationIntro);
     console.log('✅ Education content inserted');
 
-    // Insert education entry
+    // Insert education entries
     const educationEntryStmt = db.prepare(`
         INSERT OR IGNORE INTO education_entries (
-            id, institution, credentials, period, location, display_order
-        ) VALUES (?, ?, ?, ?, ?, ?)
+            id, institution, credentials, period, location, website_url, display_order
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
     educationEntryStmt.run(
         'edu_atid_raziel',
         'Atid Raziel High School (Israeli)',
-        'Math 5 (100), Physics 5 (100), Computer Science 5 (100)',
-        'Graduated 2022',
+        'Math 5, Physics 5, Computer Science 10',
+        'Graduated 2025',
         'Israel',
+        null,
         1
     );
-    console.log('✅ Education entry inserted');
+
+    educationEntryStmt.run(
+        'edu_codeguru',
+        'CodeGuru Xtreme Competition',
+        'National Programming & Cyber Competition',
+        '2025',
+        'Israel',
+        'https://codeguru.co.il/Xtreme/',
+        2
+    );
+    console.log('✅ Education entries inserted');
 
     // Insert education highlights
     const highlights = [
@@ -178,7 +188,10 @@ Beyond coding, I'm deeply invested in academic cryptography research, exploring 
         ['edu_atid_raziel', 'Served as peer mentor in mathematics and computer science', 2],
         ['edu_atid_raziel', 'Led after-school coding workshops for fellow students', 3],
         ['edu_atid_raziel', 'Developed the dormitory kiosk management website', 4],
-        ['edu_atid_raziel', 'Created a cross-platform mobile app for dorm orders', 5]
+        ['edu_atid_raziel', 'Created a cross-platform mobile app for dorm orders', 5],
+        ['edu_codeguru', '🏆 3rd place in the national stage out of 150+ teams from across Israel', 1],
+        ['edu_codeguru', '8th place in the final competition', 2],
+        ['edu_codeguru', 'CodeGuru Xtreme is a prestigious annual x86 assembly programming competition organized by the Weizmann Institute of Science, where teams write low-level code to program battle strategies in a Survivor-style virtual arena using the corewars8086 engine', 3]
     ];
 
     const highlightStmt = db.prepare(`

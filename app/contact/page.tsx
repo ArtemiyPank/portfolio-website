@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import {Mail, MessageSquare, Send, Github, Linkedin, Twitter, Instagram} from "lucide-react"
+import {Mail, MessageSquare, Send, Github, Linkedin, Instagram} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -22,7 +22,6 @@ type PersonalInfo = {
   github_url: string | null
   linkedin_url: string | null
   instagram_url: string | null
-  twitter_url: string | null
   location: string | null
 }
 
@@ -117,7 +116,6 @@ export default function ContactPage() {
     { href: personalInfo?.github_url, icon: Github, label: "GitHub" },
     { href: personalInfo?.linkedin_url, icon: Linkedin, label: "LinkedIn" },
     { href: personalInfo?.instagram_url, icon: Instagram, label: "Instagram" },
-    { href: personalInfo?.twitter_url, icon: Twitter, label: "Twitter" },
   ].filter(link => link.href)
 
   return (
