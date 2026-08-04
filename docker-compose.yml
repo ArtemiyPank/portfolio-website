@@ -14,11 +14,8 @@ services:
       HOSTNAME: "0.0.0.0"
 
       # Authentication
-      ADMIN_PASSWORD: "${ADMIN_PASSWORD:-123}"
-      NEXTAUTH_SECRET: "${NEXTAUTH_SECRET:-nextauth_secret_here_change_in_production}"
-
-      # Database
-      DATABASE_URL: "file:./data/portfolio.db"
+      ADMIN_PASSWORD: "${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}"
+      SESSION_SECRET: "${SESSION_SECRET:-}"
 
       # Public URL
       NEXT_PUBLIC_APP_URL: "${NEXT_PUBLIC_APP_URL:-http://localhost:3001}"

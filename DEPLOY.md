@@ -62,9 +62,8 @@ nano .env.local
 Пример `.env.local`:
 ```env
 ADMIN_PASSWORD="admin123"
-DATABASE_URL=file:./data/portfolio.db
 NEXT_PUBLIC_APP_URL=http://localhost:3001
-NEXTAUTH_SECRET="your-secret-key-min-32-chars-long"
+SESSION_SECRET="your-secret-key-min-32-chars-long"
 DOMAIN=localhost
 UID=1000
 GID=1000
@@ -215,9 +214,8 @@ GENERATED_SECRET=$(openssl rand -base64 32)
 # Создайте .env файл
 cat > .env << EOF
 ADMIN_PASSWORD="change_this_to_secure_password"
-DATABASE_URL=file:./data/portfolio.db
 NEXT_PUBLIC_APP_URL=https://artemiypank.com
-NEXTAUTH_SECRET="$GENERATED_SECRET"
+SESSION_SECRET="$GENERATED_SECRET"
 DOMAIN=artemiypank.com
 UID=1000
 GID=1000
@@ -252,8 +250,7 @@ services:
       PORT: 3000
       HOSTNAME: "0.0.0.0"
       ADMIN_PASSWORD: "${ADMIN_PASSWORD}"
-      NEXTAUTH_SECRET: "${NEXTAUTH_SECRET}"
-      DATABASE_URL: "${DATABASE_URL}"
+      SESSION_SECRET: "${SESSION_SECRET}"
       NEXT_PUBLIC_APP_URL: "${NEXT_PUBLIC_APP_URL}"
       DOMAIN: "${DOMAIN}"
     volumes:
@@ -267,10 +264,10 @@ services:
       retries: 3
       start_period: 40s
     networks:
-      - caddy_network
+      - web
 
 networks:
-  caddy_network:
+  web:
     external: true
 EOF
 ```
@@ -282,11 +279,11 @@ EOF
 docker network ls
 
 # Создайте сеть для Caddy (если не существует)
-docker network create caddy_network
+docker network create web
 
 # Если у вас уже запущен Caddy, подключите его к сети
 docker ps | grep caddy  # узнайте имя контейнера
-docker network connect caddy_network <caddy-container-name>
+docker network connect web <caddy-container-name>
 ```
 
 ### Шаг 6: Настройка Caddy Reverse Proxy
@@ -313,10 +310,10 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     networks:
-      - caddy_network
+      - web
 
 networks:
-  caddy_network:
+  web:
     external: true
 
 volumes:
@@ -650,14 +647,14 @@ Caddy не может подключиться к контейнеру.
 docker ps | grep portfolio
 
 # Проверьте что контейнер в сети
-docker network inspect caddy_network | grep portfolio
+docker network inspect web | grep portfolio
 
 # Проверьте локальную доступность
 curl http://localhost:3000
 
 # Переподключите к сети
-docker network disconnect caddy_network portfolio-app
-docker network connect caddy_network portfolio-app
+docker network disconnect web portfolio-app
+docker network connect web portfolio-app
 
 # Перезапустите Caddy
 docker restart caddy
@@ -704,11 +701,11 @@ sudo rsync -avz --progress \
   ./ root@your-vps-ip:/srv/nextjs-site/portfolio-website/
 ```
 
-### 6. Сеть caddy_network не существует
+### 6. Сеть web не существует
 
 ```bash
 # Создайте сеть
-docker network create caddy_network
+docker network create web
 
 # Перезапустите приложение
 docker-compose -f docker-compose.prod.yml down
@@ -721,7 +718,7 @@ docker-compose -f docker-compose.prod.yml up -d
 
 ```bash
 # Создайте сеть
-docker network create caddy_network
+docker network create web
 
 # Попробуйте снова
 docker-compose -f docker-compose.prod.yml up -d
@@ -799,7 +796,7 @@ sudo dpkg-reconfigure -plow unattended-upgrades
 ### 2. Рекомендации по паролям
 
 - `ADMIN_PASSWORD`: минимум 16 символов, используйте буквы, цифры, спецсимволы
-- `NEXTAUTH_SECRET`: минимум 32 символа, генерируется автоматически
+- `SESSION_SECRET`: минимум 32 символа, генерируется автоматически
 
 Генератор паролей:
 ```bash
