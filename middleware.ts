@@ -20,6 +20,22 @@ export async function middleware(request: NextRequest) {
         (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
     )
     if (isProtected && !READ_ONLY_METHODS.has(request.method)) {
+        // CSRF hardening: browsers always send Origin on cross-site mutations;
+        // when present it must match our host (absent = non-browser client)
+        const origin = request.headers.get("origin")
+        if (origin) {
+            let originHost: string
+            try {
+                originHost = new URL(origin).host
+            } catch {
+                return NextResponse.json({ error: "Invalid origin" }, { status: 403 })
+            }
+            const requestHost = request.headers.get("x-forwarded-host") ?? request.nextUrl.host
+            if (originHost !== requestHost) {
+                return NextResponse.json({ error: "Invalid origin" }, { status: 403 })
+            }
+        }
+
         const authenticated = await verifySessionToken(request.cookies.get(SESSION_COOKIE)?.value)
         if (!authenticated) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
