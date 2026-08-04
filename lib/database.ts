@@ -176,19 +176,16 @@ function generateId(): string {
     return Math.random().toString(36).substring(2) + Date.now().toString(36)
 }
 
-// Initialize database
+// Initialize database (idempotent: the schema is applied once per process,
+// no matter how many route modules call this)
+let schemaApplied = false
+
 export function initDatabase() {
+    if (schemaApplied) return
     const schemaPath = path.join(process.cwd(), "scripts", "init-database.sql")
     const initSql = readFileSync(schemaPath, "utf8")
     db.exec(initSql)
-
-    // Temporarily disabled - SQL syntax error to be fixed
-    // Run content management migration
-    // const migrationPath = path.join(process.cwd(), "scripts", "migrate-content-management.sql")
-    // if (existsSync(migrationPath)) {
-    //     const migrationSql = readFileSync(migrationPath, "utf8")
-    //     db.exec(migrationSql)
-    // }
+    schemaApplied = true
 }
 
 // Project operations
