@@ -101,6 +101,16 @@ export default function AdminPage() {
     }
   }
 
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/admin", { method: "DELETE" })
+    } catch (error) {
+      // Cookie may already be gone; drop local state either way
+    }
+    setIsAuthenticated(false)
+    setPassword("")
+  }
+
   const fetchProjects = async () => {
     try {
       const response = await fetch("/api/projects")
@@ -220,9 +230,14 @@ export default function AdminPage() {
   return (
       <div className="min-h-screen pt-20">
         <div className="container mx-auto px-4 py-12">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold">Admin Panel</h1>
-            <p className="text-muted-foreground">Manage your portfolio content</p>
+          <div className="mb-8 flex items-start justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Admin Panel</h1>
+              <p className="text-muted-foreground">Manage your portfolio content</p>
+            </div>
+            <Button variant="outline" onClick={handleLogout}>
+              Logout
+            </Button>
           </div>
 
           <Tabs defaultValue="projects" className="w-full">
