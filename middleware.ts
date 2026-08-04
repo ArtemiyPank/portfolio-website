@@ -3,7 +3,7 @@ import { verifySessionToken, SESSION_COOKIE } from "@/lib/auth"
 
 // Write access to these API namespaces requires an admin session.
 // /api/auth/* and /api/contact/* stay public.
-const PROTECTED_API_PREFIXES = ["/api/content", "/api/projects", "/api/tags", "/api/upload"]
+const PROTECTED_API_PREFIXES = ["/api/content", "/api/projects", "/api/articles", "/api/tags", "/api/upload"]
 const READ_ONLY_METHODS = new Set(["GET", "HEAD", "OPTIONS"])
 
 export async function middleware(request: NextRequest) {
