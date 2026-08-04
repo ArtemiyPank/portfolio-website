@@ -4,8 +4,13 @@
 export const SESSION_COOKIE = "admin_session"
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000
 
+// The admin password is mixed into the signing key so that changing it
+// invalidates every previously issued session token.
 function getSecret(): string | null {
-    return process.env.SESSION_SECRET || process.env.ADMIN_PASSWORD || null
+    const secret = process.env.SESSION_SECRET || ""
+    const password = process.env.ADMIN_PASSWORD || ""
+    if (!secret && !password) return null
+    return `${secret}:${password}`
 }
 
 async function hmac(value: string, secret: string): Promise<string> {
@@ -37,11 +42,20 @@ export async function verifySessionToken(token: string | undefined): Promise<boo
     if (!expiresAt || !signature) return false
     if (!/^\d+$/.test(expiresAt) || Number(expiresAt) < Date.now()) return false
 
-    const expected = await hmac(expiresAt, secret)
-    if (signature.length !== expected.length) return false
+    return timingSafeEqual(signature, await hmac(expiresAt, secret))
+}
+
+// Compare the HMACs rather than the strings themselves so the comparison
+// time reveals nothing about where the values diverge.
+export async function verifyPassword(supplied: string, actual: string): Promise<boolean> {
+    return timingSafeEqual(await hmac(supplied, "password-compare"), await hmac(actual, "password-compare"))
+}
+
+function timingSafeEqual(a: string, b: string): boolean {
+    if (a.length !== b.length) return false
     let diff = 0
-    for (let i = 0; i < expected.length; i++) {
-        diff |= signature.charCodeAt(i) ^ expected.charCodeAt(i)
+    for (let i = 0; i < a.length; i++) {
+        diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
     }
     return diff === 0
 }
