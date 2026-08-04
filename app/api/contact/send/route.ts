@@ -1,5 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
+
+// 5 letters per hour per IP; 50 per day in total (Resend free tier is 100/day)
+const IP_LIMIT = 5;
+const IP_WINDOW_MS = 60 * 60 * 1000;
+const GLOBAL_DAILY_LIMIT = 50;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const FIELD_LIMITS: Record<string, number> = {
+  name: 100,
+  email: 200,
+  subject: 200,
+  message: 5000,
+};
 
 function escapeHtml(value: string): string {
   return value
@@ -22,13 +36,39 @@ export async function POST(request: NextRequest) {
   }
   try {
     const body = await request.json();
-    const { name, email, subject, message } = body;
+    const { name, email, subject, message, website } = body;
+
+    // Honeypot: real users never fill this hidden field. Pretend success
+    // so bots don't learn they were filtered out.
+    if (website) {
+      return NextResponse.json({ success: true });
+    }
 
     // Validate input
     if (!name || !email || !subject || !message) {
       return NextResponse.json(
         { error: "All fields are required" },
         { status: 400 }
+      );
+    }
+
+    for (const [field, limit] of Object.entries(FIELD_LIMITS)) {
+      if (typeof body[field] !== "string" || body[field].length > limit) {
+        return NextResponse.json(
+          { error: `Field "${field}" is too long (max ${limit} characters)` },
+          { status: 400 }
+        );
+      }
+    }
+
+    const ip = getClientIp(request);
+    if (
+      !rateLimit(`contact:${ip}`, IP_LIMIT, IP_WINDOW_MS) ||
+      !rateLimit("contact:global", GLOBAL_DAILY_LIMIT, DAY_MS)
+    ) {
+      return NextResponse.json(
+        { error: "Too many messages. Please try again later." },
+        { status: 429 }
       );
     }
 
@@ -62,10 +102,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Error sending email:", error);
     return NextResponse.json(
-      {
-        error: "Failed to send message",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
+      { error: "Failed to send message" },
       { status: 500 }
     );
   }

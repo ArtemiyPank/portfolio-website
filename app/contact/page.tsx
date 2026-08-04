@@ -73,7 +73,8 @@ export default function ContactPage() {
       name: formData.get('name'),
       email: formData.get('email'),
       subject: formData.get('subject'),
-      message: formData.get('message')
+      message: formData.get('message'),
+      website: formData.get('website')
     }
 
     try {
@@ -146,20 +147,29 @@ export default function ContactPage() {
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Honeypot: hidden from humans, bots fill it and get silently dropped */}
+                    <input
+                      type="text"
+                      name="website"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      aria-hidden="true"
+                      className="hidden"
+                    />
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name">Name</Label>
-                        <Input id="name" name="name" placeholder="Your name" required />
+                        <Input id="name" name="name" placeholder="Your name" maxLength={100} required />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input id="email" name="email" type="email" placeholder="your.email@example.com" required />
+                        <Input id="email" name="email" type="email" placeholder="your.email@example.com" maxLength={200} required />
                       </div>
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="subject">Subject</Label>
-                      <Input id="subject" name="subject" placeholder="What's this about?" required />
+                      <Input id="subject" name="subject" placeholder="What's this about?" maxLength={200} required />
                     </div>
 
                     <div className="space-y-2">
@@ -169,6 +179,7 @@ export default function ContactPage() {
                         name="message"
                         placeholder="Tell me about your project or just say hello!"
                         rows={5}
+                        maxLength={5000}
                         required
                       />
                     </div>
