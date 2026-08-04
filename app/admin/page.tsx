@@ -53,6 +53,16 @@ export default function AdminPage() {
     }
   }, [isAuthenticated])
 
+  // Restore session from the HttpOnly cookie on page load
+  useEffect(() => {
+    fetch("/api/auth/admin")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated) setIsAuthenticated(true)
+      })
+      .catch(() => {})
+  }, [])
+
   // Authentication with environment variable
   const handleAuth = async () => {
     setIsLoading(true)
