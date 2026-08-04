@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { use, useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { ArrowLeft, Github, ExternalLink, Tag, FileText, AlertCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -36,7 +36,8 @@ type ReadmeData = {
     url: string
 }
 
-export default function ProjectPage({ params }: { params: { id: string } }) {
+export default function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params)
     const [project, setProject] = useState<Project | null>(null)
     const [readme, setReadme] = useState<ReadmeData | null>(null)
     const [loading, setLoading] = useState(true)
@@ -47,11 +48,11 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
 
     useEffect(() => {
         fetchProject()
-    }, [params.id])
+    }, [id])
 
     const fetchProject = async () => {
         try {
-            const response = await fetch(`/api/projects/${params.id}`)
+            const response = await fetch(`/api/projects/${id}`)
 
             if (!response.ok) {
                 if (response.status === 404) {
@@ -82,7 +83,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         setReadmeError(null)
 
         try {
-            const response = await fetch(`/api/projects/${params.id}/readme`)
+            const response = await fetch(`/api/projects/${id}/readme`)
 
             if (!response.ok) {
                 const errorData = await response.json()

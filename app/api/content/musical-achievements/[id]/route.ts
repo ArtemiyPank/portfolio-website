@@ -17,12 +17,12 @@ function ensureDbInitialized() {
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         ensureDbInitialized();
 
-        const success = deleteMusicalAchievement(params.id);
+        const success = deleteMusicalAchievement((await params).id);
 
         if (!success) {
             return NextResponse.json(

@@ -17,13 +17,13 @@ function ensureDbInitialized() {
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         ensureDbInitialized();
 
         const data = await request.json();
-        const success = updateTechSkill(params.id, data);
+        const success = updateTechSkill((await params).id, data);
 
         if (!success) {
             return NextResponse.json(
@@ -47,12 +47,12 @@ export async function PUT(
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         ensureDbInitialized();
 
-        const success = deleteTechSkill(params.id);
+        const success = deleteTechSkill((await params).id);
 
         if (!success) {
             return NextResponse.json(
