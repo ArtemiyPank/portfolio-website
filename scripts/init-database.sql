@@ -277,3 +277,16 @@ CREATE TABLE IF NOT EXISTS favorite_artists (
     FOREIGN KEY (genre_id) REFERENCES music_genres(id) ON DELETE CASCADE,
     UNIQUE(genre_id, artist_name)
 );
+
+CREATE TABLE IF NOT EXISTS articles (
+    id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+    title TEXT NOT NULL,
+    excerpt TEXT,
+    content TEXT NOT NULL,
+    cover_image_url TEXT,
+    tags TEXT NOT NULL DEFAULT '[]',
+    published INTEGER NOT NULL DEFAULT 0,
+    published_at DATETIME,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);

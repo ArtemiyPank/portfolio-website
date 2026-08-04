@@ -265,6 +265,106 @@ export function deleteProject(id: string): boolean {
     return result.changes > 0
 }
 
+// Article operations
+export type Article = {
+    id: string
+    title: string
+    excerpt: string | null
+    content: string
+    cover_image_url: string | null
+    tags: string[]
+    published: boolean
+    published_at: string | null
+    created_at: string
+    updated_at: string
+}
+
+function rowToArticle(row: any): Article {
+    return {
+        ...row,
+        tags: JSON.parse(row.tags || "[]"),
+        published: Boolean(row.published),
+    }
+}
+
+export function getAllArticles(includeDrafts = false): Article[] {
+    const where = includeDrafts ? "" : "WHERE published = 1"
+    const stmt = db.prepare(
+        `SELECT * FROM articles ${where} ORDER BY COALESCE(published_at, created_at) DESC`,
+    )
+    return (stmt.all() as any[]).map(rowToArticle)
+}
+
+export function getArticleById(id: string): Article | null {
+    const stmt = db.prepare("SELECT * FROM articles WHERE id = ?")
+    const row = stmt.get(id) as any
+    return row ? rowToArticle(row) : null
+}
+
+export function createArticle(
+    article: Omit<Article, "id" | "published_at" | "created_at" | "updated_at">,
+): string {
+    const id = generateId()
+    const stmt = db.prepare(`
+        INSERT INTO articles (id, title, excerpt, content, cover_image_url, tags, published, published_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ${article.published ? "CURRENT_TIMESTAMP" : "NULL"})
+    `)
+    stmt.run(
+        id,
+        article.title,
+        article.excerpt,
+        article.content,
+        article.cover_image_url,
+        JSON.stringify(article.tags),
+        article.published ? 1 : 0,
+    )
+    return id
+}
+
+export function updateArticle(
+    id: string,
+    article: Partial<Omit<Article, "id" | "published_at" | "created_at" | "updated_at">>,
+): boolean {
+    const existing = getArticleById(id)
+    if (!existing) return false
+
+    const updates: string[] = []
+    const values: any[] = []
+
+    Object.entries(article).forEach(([key, value]) => {
+        if (value !== undefined) {
+            if (key === "tags") {
+                updates.push(`${key} = ?`)
+                values.push(JSON.stringify(value))
+            } else if (key === "published") {
+                updates.push(`${key} = ?`)
+                values.push(value ? 1 : 0)
+            } else {
+                updates.push(`${key} = ?`)
+                values.push(value)
+            }
+        }
+    })
+
+    if (updates.length === 0) return false
+
+    // Stamp published_at on the first transition from draft to published
+    if (article.published === true && !existing.published) {
+        updates.push("published_at = CURRENT_TIMESTAMP")
+    }
+
+    updates.push("updated_at = CURRENT_TIMESTAMP")
+    values.push(id)
+
+    const stmt = db.prepare(`UPDATE articles SET ${updates.join(", ")} WHERE id = ?`)
+    return stmt.run(...values).changes > 0
+}
+
+export function deleteArticle(id: string): boolean {
+    const stmt = db.prepare("DELETE FROM articles WHERE id = ?")
+    return stmt.run(id).changes > 0
+}
+
 // Tag operations
 export function getAllTags(): Tag[] {
     const stmt = db.prepare("SELECT * FROM tags ORDER BY name")
