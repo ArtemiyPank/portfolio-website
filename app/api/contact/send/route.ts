@@ -81,8 +81,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send email using Resend
-    const data = await resend.emails.send({
+    // Send email using Resend. The SDK reports API failures in the returned
+    // `error` field instead of throwing, so it has to be checked explicitly.
+    const { data, error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
       to: process.env.RESEND_TO_EMAIL || "ad.pankrat@gmail.com",
       replyTo: email,
@@ -98,7 +99,12 @@ export async function POST(request: NextRequest) {
       `,
     });
 
-    return NextResponse.json({ success: true, data });
+    if (error) {
+      console.error("Resend rejected the message:", error);
+      return NextResponse.json({ error: "Failed to send message" }, { status: 502 });
+    }
+
+    return NextResponse.json({ success: true, id: data?.id ?? null });
   } catch (error) {
     console.error("Error sending email:", error);
     return NextResponse.json(
