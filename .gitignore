@@ -36,4 +36,4 @@ yarn-error.log*
 !/public/uploads/.gitkeep
 
 # IDE
-.idea/
+.idea/public/papers/transcript_extraction.pdf
