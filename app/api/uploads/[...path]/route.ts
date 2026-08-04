@@ -3,10 +3,16 @@ import { readFile } from "fs/promises"
 import path from "path"
 import { existsSync } from "fs"
 
-export async function GET(request: NextRequest, { params }: { params: { path: string[] } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
     try {
-        const filePath = params.path.join("/")
-        const fullPath = path.join(process.cwd(), "public", "uploads", filePath)
+        const filePath = (await params).path.join("/")
+        const uploadsDir = path.join(process.cwd(), "public", "uploads")
+        const fullPath = path.resolve(uploadsDir, filePath)
+
+        // Reject paths that escape the uploads directory
+        if (fullPath !== uploadsDir && !fullPath.startsWith(uploadsDir + path.sep)) {
+            return new NextResponse("Forbidden", { status: 403 })
+        }
 
         // Check if file exists
         if (!existsSync(fullPath)) {
