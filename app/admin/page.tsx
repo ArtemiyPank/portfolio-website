@@ -22,6 +22,7 @@ import { ContactContentForm } from "./components/ContactContentForm"
 import { TechnologiesManager } from "./components/TechnologiesManager"
 import { EducationManager } from "./components/EducationManager"
 import { MusicManager } from "./components/MusicManager"
+import { ArticlesManager } from "./components/ArticlesManager"
 import Image from "next/image"
 
 type Project = {
@@ -241,8 +242,9 @@ export default function AdminPage() {
           </div>
 
           <Tabs defaultValue="projects" className="w-full">
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 mb-8">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-8">
               <TabsTrigger value="projects">Projects</TabsTrigger>
+              <TabsTrigger value="articles">Articles</TabsTrigger>
               <TabsTrigger value="personal">Personal</TabsTrigger>
               <TabsTrigger value="about">About</TabsTrigger>
               <TabsTrigger value="contact">Contact</TabsTrigger>
@@ -337,6 +339,10 @@ export default function AdminPage() {
                     </motion.div>
                 ))}
               </div>
+            </TabsContent>
+
+            <TabsContent value="articles">
+              <ArticlesManager />
             </TabsContent>
 
             <TabsContent value="personal">
