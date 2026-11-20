@@ -23,11 +23,25 @@ type Project = {
     updated_at: string
 }
 
+type PersonalInfo = {
+    id: string
+    full_name: string
+    tagline: string
+    email: string
+    telegram: string
+    github_url: string | null
+    linkedin_url: string | null
+    instagram_url: string | null
+    location: string | null
+}
+
 export default function HomePage() {
     const [featuredProjects, setFeaturedProjects] = useState<Project[]>([])
+    const [personalInfo, setPersonalInfo] = useState<PersonalInfo | null>(null)
 
     useEffect(() => {
         fetchFeaturedProjects()
+        fetchPersonalInfo()
     }, [])
 
     const fetchFeaturedProjects = async () => {
@@ -37,6 +51,16 @@ export default function HomePage() {
             setFeaturedProjects(projects.filter((p: Project) => p.featured).slice(0, 3))
         } catch (error) {
             console.error("Error fetching featured projects:", error)
+        }
+    }
+
+    const fetchPersonalInfo = async () => {
+        try {
+            const response = await fetch("/api/content/personal")
+            const data = await response.json()
+            setPersonalInfo(data)
+        } catch (error) {
+            console.error("Error fetching personal info:", error)
         }
     }
 
@@ -87,7 +111,7 @@ export default function HomePage() {
                             animate={{opacity: 1, y: 0}}
                             transition={{delay: 0.2, duration: 0.8}}
                         >
-                            Artemiy Pankratov
+                            {personalInfo?.full_name || "Artemiy Pankratov"}
                         </motion.h1>
 
                         <motion.p
@@ -96,7 +120,7 @@ export default function HomePage() {
                             animate={{opacity: 1, y: 0}}
                             transition={{delay: 0.4, duration: 0.8}}
                         >
-                            Developer crafting digital experiences with modern technologies
+                            {personalInfo?.tagline || "Cryptography Specialist & Security-Focused Developer"}
                         </motion.p>
 
                         <motion.div
@@ -111,22 +135,27 @@ export default function HomePage() {
                             </Button>
 
                             <div className="flex items-center space-x-4">
-                                <Button variant="outline" size="icon" asChild>
-                                    <Link href="https://github.com/ArtemiyPank" target="_blank">
-                                        <Github className="w-4 h-4"/>
-                                    </Link>
-                                </Button>
-                                <Button variant="outline" size="icon" asChild>
-                                    <Link href="https://www.linkedin.com/in/artemiy-pankratov-251059326/"
-                                          target="_blank">
-                                        <Linkedin className="w-4 h-4"/>
-                                    </Link>
-                                </Button>
-                                <Button variant="outline" size="icon" asChild>
-                                    <Link href="https://www.instagram.com/pankratov_artemiy/" target="_blank">
-                                        <Instagram className="w-4 h-4"/>
-                                    </Link>
-                                </Button>
+                                {personalInfo?.github_url && (
+                                    <Button variant="outline" size="icon" asChild>
+                                        <Link href={personalInfo.github_url} target="_blank">
+                                            <Github className="w-4 h-4"/>
+                                        </Link>
+                                    </Button>
+                                )}
+                                {personalInfo?.linkedin_url && (
+                                    <Button variant="outline" size="icon" asChild>
+                                        <Link href={personalInfo.linkedin_url} target="_blank">
+                                            <Linkedin className="w-4 h-4"/>
+                                        </Link>
+                                    </Button>
+                                )}
+                                {personalInfo?.instagram_url && (
+                                    <Button variant="outline" size="icon" asChild>
+                                        <Link href={personalInfo.instagram_url} target="_blank">
+                                            <Instagram className="w-4 h-4"/>
+                                        </Link>
+                                    </Button>
+                                )}
                                 <Button variant="outline" size="icon" asChild>
                                     <Link href="/contact">
                                         <Mail className="w-4 h-4"/>

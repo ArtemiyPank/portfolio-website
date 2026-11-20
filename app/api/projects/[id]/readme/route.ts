@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { projectsDb, initDatabase, type Project } from "@/lib/database"
+import { getProjectById, initDatabase, type Project } from "@/lib/database"
 
 // Initialize a database on the first request
 let dbInitialized = false
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     try {
         ensureDbInitialized()
         const { id } = await params
-        const project: Project | null = projectsDb.getById(id)
+        const project: Project | null = getProjectById(id)
 
         if (!project) {
             return NextResponse.json({ error: "Project not found" }, { status: 404 })

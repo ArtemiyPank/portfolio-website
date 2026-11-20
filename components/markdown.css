@@ -1,0 +1,117 @@
+/* Enhanced Markdown Styles */
+
+/* Task list checkboxes */
+.prose input[type="checkbox"] {
+    @apply mr-2 rounded border-border accent-primary cursor-pointer;
+}
+
+/* Improved code blocks */
+.prose pre code {
+    @apply bg-transparent p-0 text-sm;
+    font-family: 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+/* Highlight.js theme switcher support */
+@media (prefers-color-scheme: dark) {
+    .hljs {
+        @apply bg-muted/50;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .hljs {
+        @apply bg-muted/30;
+    }
+}
+
+/* Better table responsiveness */
+.prose table {
+    @apply block overflow-x-auto;
+}
+
+/* Footnotes styling */
+.prose .footnotes {
+    @apply mt-12 pt-8 border-t border-border text-sm;
+}
+
+.prose .footnotes ol {
+    @apply list-decimal;
+}
+
+/* Details/Summary (collapsible sections) */
+.prose details {
+    @apply my-4 p-4 border border-border rounded-lg bg-muted/30;
+}
+
+.prose summary {
+    @apply cursor-pointer font-semibold select-none hover:text-primary transition-colors;
+}
+
+.prose details[open] summary {
+    @apply mb-4 pb-4 border-b border-border;
+}
+
+/* Keyboard keys */
+.prose kbd {
+    @apply px-2 py-1 text-sm font-mono bg-muted border border-border rounded shadow-sm;
+}
+
+/* Mark/Highlight */
+.prose mark {
+    @apply bg-yellow-200 dark:bg-yellow-900/30 px-1 rounded;
+}
+
+/* Abbreviations */
+.prose abbr {
+    @apply underline decoration-dotted cursor-help;
+}
+
+/* Definition lists */
+.prose dl {
+    @apply my-4;
+}
+
+.prose dt {
+    @apply font-semibold mt-4;
+}
+
+.prose dd {
+    @apply ml-6 text-muted-foreground;
+}
+
+/* Better spacing for nested lists */
+.prose ul ul,
+.prose ol ul,
+.prose ul ol,
+.prose ol ol {
+    @apply my-2;
+}
+
+/* Alert boxes (using blockquotes with special markers) */
+.prose blockquote p:first-child::before {
+    content: '';
+}
+
+.prose blockquote:has(p:first-child:first-letter) {
+    @apply border-l-4;
+}
+
+/* Note: Special styling for GitHub-style alerts */
+.prose blockquote p strong:first-child {
+    @apply block mb-2;
+}
+
+/* Smooth scrolling for anchor links */
+.prose [id] {
+    @apply scroll-mt-20;
+}
+
+/* Copy button for code blocks (optional enhancement) */
+.prose pre {
+    @apply relative;
+}
+
+/* Line numbers support */
+.prose pre code .line-number {
+    @apply inline-block w-8 text-muted-foreground/50 select-none;
+}

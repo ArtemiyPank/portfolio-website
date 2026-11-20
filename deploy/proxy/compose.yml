@@ -1,0 +1,25 @@
+# Общий reverse proxy для всех сайтов на сервере.
+# Живёт в /srv/proxy, сайты подключаются через внешнюю сеть "web".
+name: proxy
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./sites:/etc/caddy/sites:ro
+      - ./data:/data
+      - ./config:/config
+    networks:
+      - web
+
+networks:
+  web:
+    name: web
+    external: true

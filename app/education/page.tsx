@@ -1,79 +1,170 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import {motion} from "framer-motion"
-import {Award, Calendar, GraduationCap, MapPin} from "lucide-react"
+import {Award, Calendar, GraduationCap, MapPin, Loader2, ExternalLink} from "lucide-react"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
 
-const introText = `
-I am a quick and enthusiastic learner, driven by an insatiable curiosity and a deep love for mathematics, programming, data protection, encryption, and physics. I thrive in dynamic environments, eagerly embracing new challenges and turning complex problems into elegant solutions.
-`
+type EducationContent = {
+    id: string
+    page_title: string
+    intro_text: string
+    section_title: string
+}
 
-const education = [{
-    institution: "Atid Raziel High School (Israeli)",
-    credentials: "Math 5 (100), Physics 5 (100), Computer Science 5 (100)",
-    period: "Graduated 2022",
-    highlights: ["Graduated with top honors in core STEM subjects", "Served as peer mentor in mathematics and computer science", "Led after-school coding workshops for fellow students", "Developed the dormitory kiosk management website", "Created a cross-platform mobile app for dorm orders",],
-},]
+type EducationHighlight = {
+    id: string
+    education_id: string
+    highlight_text: string
+    display_order: number
+}
+
+type EducationEntry = {
+    id: string
+    institution: string
+    credentials: string
+    period: string
+    location: string
+    website_url?: string | null
+    display_order: number
+    highlights: EducationHighlight[]
+}
+
+// Превращает markdown-ссылки вида [текст](https://...) в пунктах в настоящие ссылки
+function renderLinks(text: string) {
+    const parts = text.split(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g)
+    return parts.map((part, i) => {
+        if (i % 3 === 1) {
+            return (
+                <a key={i} href={parts[i + 1]} target="_blank" rel="noopener noreferrer"
+                   className="text-primary hover:underline">
+                    {part}
+                </a>
+            )
+        }
+        return i % 3 === 2 ? null : part
+    })
+}
 
 export default function EducationPage() {
-    return (<div className="min-h-screen pt-20 bg-background">
-        <div className="container mx-auto px-6 py-16">
-            {/* Header */}
-            <motion.div
-                initial={{opacity: 0, y: 20}}
-                animate={{opacity: 1, y: 0}}
-                className="max-w-3xl mx-auto text-center mb-12"
-            >
-                <GraduationCap className="mx-auto mb-4 w-8 h-8 text-primary"/>
-                <h1 className="text-4xl md:text-5xl font-bold mb-4">Education &amp; Passion</h1>
-                <p className="prose prose-lg mx-auto whitespace-pre-line">{introText}</p>
-            </motion.div>
+    const [content, setContent] = useState<EducationContent | null>(null)
+    const [entries, setEntries] = useState<EducationEntry[]>([])
+    const [loading, setLoading] = useState(true)
 
-            {/* Academic Background */}
-            <motion.section
-                initial={{opacity: 0, y: 20}}
-                animate={{opacity: 1, y: 0}}
-                transition={{delay: 0.2}}
-                className="max-w-3xl mx-auto"
-            >
-                <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
-                    <Calendar className="w-6 h-6 text-primary"/>
-                    Academic Profile
-                </h2>
+    useEffect(() => {
+        fetchContent()
+    }, [])
 
-                {education.map((edu, i) => (<Card key={i} className="mb-8">
-                    <CardHeader>
-                        <CardTitle
-                            className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-                            <div>
-                                <h3 className="text-2xl font-semibold">{edu.institution}</h3>
-                                <p className="text-lg text-muted-foreground">{edu.credentials}</p>
-                            </div>
-                            <Badge variant="secondary" className="text-sm">
-                                {edu.period}
-                            </Badge>
-                        </CardTitle>
-                        <CardDescription className="flex flex-wrap gap-6 mt-2 text-base">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-5 h-5"/>
-                    Israel
-                  </span>
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div>
-                            <h4 className="font-semibold mb-3 flex items-center gap-2">
-                                <Award className="w-5 h-5 text-primary"/>
-                                Achievements &amp; Highlights
-                            </h4>
-                            <ul className="list-disc list-inside space-y-2 text-sm">
-                                {edu.highlights.map((hl, idx) => (<li key={idx}>{hl}</li>))}
-                            </ul>
-                        </div>
-                    </CardContent>
-                </Card>))}
-            </motion.section>
+    const fetchContent = async () => {
+        try {
+            const [contentResponse, entriesResponse] = await Promise.all([
+                fetch("/api/content/education"),
+                fetch("/api/content/education-entries")
+            ])
+
+            const contentData = await contentResponse.json()
+            const entriesData = await entriesResponse.json()
+
+            setContent(contentData)
+            setEntries(entriesData || [])
+        } catch (error) {
+            console.error("Error fetching education content:", error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    if (loading) {
+        return (
+            <div className="min-h-screen pt-20 flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin" />
+            </div>
+        )
+    }
+
+    return (
+        <div className="min-h-screen pt-20 bg-background">
+            <div className="container mx-auto px-6 py-16">
+                {/* Header */}
+                <motion.div
+                    initial={{opacity: 0, y: 20}}
+                    animate={{opacity: 1, y: 0}}
+                    className="max-w-3xl mx-auto text-center mb-12"
+                >
+                    <GraduationCap className="mx-auto mb-4 w-8 h-8 text-primary"/>
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                        {content?.page_title || "Education & Passion"}
+                    </h1>
+                    <p className="prose prose-lg mx-auto whitespace-pre-line">
+                        {content?.intro_text}
+                    </p>
+                </motion.div>
+
+                {/* Academic Background */}
+                <motion.section
+                    initial={{opacity: 0, y: 20}}
+                    animate={{opacity: 1, y: 0}}
+                    transition={{delay: 0.2}}
+                    className="max-w-3xl mx-auto"
+                >
+                    <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
+                        <Calendar className="w-6 h-6 text-primary"/>
+                        {content?.section_title || "Academic Profile"}
+                    </h2>
+
+                    {entries.map((edu, i) => (
+                        <Card key={edu.id} className="mb-8">
+                            <CardHeader>
+                                <CardTitle
+                                    className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                    <div>
+                                        <h3 className="text-2xl font-semibold">{edu.institution}</h3>
+                                        <p className="text-lg text-muted-foreground">{edu.credentials}</p>
+                                    </div>
+                                    <Badge variant="secondary" className="text-sm">
+                                        {edu.period}
+                                    </Badge>
+                                </CardTitle>
+                                <CardDescription className="flex flex-wrap gap-6 mt-2 text-base">
+                                    <span className="flex items-center gap-1">
+                                        <MapPin className="w-5 h-5"/>
+                                        {edu.location}
+                                    </span>
+                                    {edu.website_url && (
+                                        <a
+                                            href={edu.website_url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="flex items-center gap-1 text-primary hover:underline"
+                                        >
+                                            <ExternalLink className="w-5 h-5"/>
+                                            Official Website
+                                        </a>
+                                    )}
+                                </CardDescription>
+                            </CardHeader>
+                            {edu.highlights && edu.highlights.length > 0 && (
+                                <CardContent className="space-y-6">
+                                    <div>
+                                        <h4 className="font-semibold mb-3 flex items-center gap-2">
+                                            <Award className="w-5 h-5 text-primary"/>
+                                            Achievements &amp; Highlights
+                                        </h4>
+                                        <ul className="list-disc list-inside space-y-2 text-sm">
+                                            {edu.highlights
+                                                .sort((a, b) => a.display_order - b.display_order)
+                                                .map((hl) => (
+                                                    <li key={hl.id}>{renderLinks(hl.highlight_text)}</li>
+                                                ))}
+                                        </ul>
+                                    </div>
+                                </CardContent>
+                            )}
+                        </Card>
+                    ))}
+                </motion.section>
+            </div>
         </div>
-    </div>)
+    )
 }

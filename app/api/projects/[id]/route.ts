@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { projectsDb, initDatabase } from "@/lib/database"
+import { getProjectById, updateProject, deleteProject, initDatabase } from "@/lib/database"
 
 // Initialize database on first request
 let dbInitialized = false
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     ensureDbInitialized()
     const { id } = await params
-    const project = projectsDb.getById(id)
+    const project = getProjectById(id)
 
     if (!project) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 })
@@ -43,13 +43,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     if (body.tags !== undefined) updateData.tags = Array.isArray(body.tags) ? body.tags : []
     if (body.featured !== undefined) updateData.featured = Boolean(body.featured)
 
-    const success = projectsDb.update(id, updateData)
+    const success = updateProject(id, updateData)
 
     if (!success) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 })
     }
 
-    const updatedProject = projectsDb.getById(id)
+    const updatedProject = getProjectById(id)
     return NextResponse.json(updatedProject)
   } catch (error) {
     console.error("Error updating project:", error)
@@ -61,7 +61,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
   try {
     ensureDbInitialized()
     const { id } = await params
-    const success = projectsDb.delete(id)
+    const success = deleteProject(id)
 
     if (!success) {
       return NextResponse.json({ error: "Project not found" }, { status: 404 })

@@ -1,0 +1,11 @@
+artemiypank.com {
+	import common
+	reverse_proxy portfolio:3000
+
+	@static path /_next/static/*
+	header @static Cache-Control "public, max-age=31536000, immutable"
+}
+
+www.artemiypank.com {
+	redir https://artemiypank.com{uri} permanent
+}

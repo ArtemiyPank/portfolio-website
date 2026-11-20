@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, Home, User, Briefcase, Mail, GraduationCap, Music } from "lucide-react"
+import { Menu, X, Home, User, Briefcase, Mail, GraduationCap, Music, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { cn } from "@/lib/utils"
@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils"
 const navItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/projects", label: "Projects", icon: Briefcase },
+  { href: "/articles", label: "Articles", icon: FileText },
   { href: "/about", label: "About", icon: User },
   { href: "/contact", label: "Contact", icon: Mail },
 ]
@@ -105,24 +106,31 @@ export function Navigation() {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="md:hidden mt-4 pb-4 border-t border-border/50"
+                    transition={{ duration: 0.2 }}
+                    className="md:hidden mt-4 pb-4 border-t border-border/50 bg-background/95 backdrop-blur-md rounded-b-lg overflow-hidden"
                 >
                   <div className="flex flex-col space-y-4 pt-4">
-                    {[...navItems, ...easterEggs].map((item) => {
+                    {[...navItems, ...easterEggs].map((item, index) => {
                       const Icon = item.icon
                       return (
-                          <Link
+                          <motion.div
                               key={item.href}
-                              href={item.href}
-                              onClick={() => setIsOpen(false)}
-                              className={cn(
-                                  "flex items-center space-x-3 text-sm font-medium transition-colors hover:text-primary",
-                                  pathname === item.href ? "text-primary" : "text-muted-foreground",
-                              )}
+                              initial={{ opacity: 0, y: -10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: index * 0.05, duration: 0.2 }}
                           >
-                            <Icon className="w-4 h-4" />
-                            <span>{item.label}</span>
-                          </Link>
+                            <Link
+                                href={item.href}
+                                onClick={() => setIsOpen(false)}
+                                className={cn(
+                                    "flex items-center space-x-3 text-sm font-medium transition-colors hover:text-primary",
+                                    pathname === item.href ? "text-primary" : "text-muted-foreground",
+                                )}
+                            >
+                              <Icon className="w-4 h-4" />
+                              <span>{item.label}</span>
+                            </Link>
+                          </motion.div>
                       )
                     })}
                   </div>

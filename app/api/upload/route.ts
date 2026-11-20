@@ -41,7 +41,11 @@ export async function POST(request: NextRequest) {
         // Generate unique filename
         const timestamp = Date.now()
         const randomString = Math.random().toString(36).substring(2, 15)
-        const extension = path.extname(file.name)
+        const extension = path.extname(file.name).toLowerCase()
+        const allowedExtensions = [".jpg", ".jpeg", ".png", ".webp", ".gif"]
+        if (!allowedExtensions.includes(extension)) {
+            return NextResponse.json({ error: "Invalid file extension. Only images are allowed." }, { status: 400 })
+        }
         const filename = `${timestamp}-${randomString}${extension}`
         const filepath = path.join(uploadsDir, filename)
 

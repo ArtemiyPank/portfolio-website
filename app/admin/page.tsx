@@ -13,8 +13,16 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ImageUpload } from "@/components/image-upload"
 import { useToast } from "@/hooks/use-toast"
+import { PersonalInfoForm } from "./components/PersonalInfoForm"
+import { AboutContentForm } from "./components/AboutContentForm"
+import { ContactContentForm } from "./components/ContactContentForm"
+import { TechnologiesManager } from "./components/TechnologiesManager"
+import { EducationManager } from "./components/EducationManager"
+import { MusicManager } from "./components/MusicManager"
+import { ArticlesManager } from "./components/ArticlesManager"
 import Image from "next/image"
 
 type Project = {
@@ -45,6 +53,16 @@ export default function AdminPage() {
       fetchProjects()
     }
   }, [isAuthenticated])
+
+  // Restore session from the HttpOnly cookie on page load
+  useEffect(() => {
+    fetch("/api/auth/admin")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.authenticated) setIsAuthenticated(true)
+      })
+      .catch(() => {})
+  }, [])
 
   // Authentication with environment variable
   const handleAuth = async () => {
@@ -82,6 +100,16 @@ export default function AdminPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/admin", { method: "DELETE" })
+    } catch (error) {
+      // Cookie may already be gone; drop local state either way
+    }
+    setIsAuthenticated(false)
+    setPassword("")
   }
 
   const fetchProjects = async () => {
@@ -203,91 +231,144 @@ export default function AdminPage() {
   return (
       <div className="min-h-screen pt-20">
         <div className="container mx-auto px-4 py-12">
-          <div className="flex justify-between items-center mb-8">
+          <div className="mb-8 flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold">Admin Panel</h1>
-              <p className="text-muted-foreground">Manage your projects</p>
+              <p className="text-muted-foreground">Manage your portfolio content</p>
             </div>
-
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={() => setEditingProject(null)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Project
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>{editingProject ? "Edit Project" : "Add New Project"}</DialogTitle>
-                </DialogHeader>
-                <ProjectForm
-                    project={editingProject}
-                    onSave={handleSaveProject}
-                    onCancel={() => {
-                      setIsDialogOpen(false)
-                      setEditingProject(null)
-                    }}
-                />
-              </DialogContent>
-            </Dialog>
+            <Button variant="outline" onClick={handleLogout}>
+              Logout
+            </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project) => (
-                <motion.div
-                    key={project.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="group"
-                >
-                  <Card className="h-full">
-                    {project.image_url && (
-                        <div className="relative h-48 overflow-hidden rounded-t-lg">
-                          <Image
-                              src={project.image_url || "/placeholder.svg"}
-                              alt={project.title}
-                              fill
-                              className="object-cover"
-                          />
-                        </div>
-                    )}
+          <Tabs defaultValue="projects" className="w-full">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-8">
+              <TabsTrigger value="projects">Projects</TabsTrigger>
+              <TabsTrigger value="articles">Articles</TabsTrigger>
+              <TabsTrigger value="personal">Personal</TabsTrigger>
+              <TabsTrigger value="about">About</TabsTrigger>
+              <TabsTrigger value="contact">Contact</TabsTrigger>
+              <TabsTrigger value="technologies">Technologies</TabsTrigger>
+              <TabsTrigger value="education">Education</TabsTrigger>
+              <TabsTrigger value="music">Music</TabsTrigger>
+            </TabsList>
 
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <CardTitle className="text-lg">{project.title}</CardTitle>
-                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                setEditingProject(project)
-                                setIsDialogOpen(true)
-                              }}
-                          >
-                            <Edit className="w-3 h-3" />
-                          </Button>
-                          <Button size="sm" variant="outline" onClick={() => handleDeleteProject(project.id)}>
-                            <Trash2 className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      </div>
-                      <CardDescription>{project.short_description}</CardDescription>
-                    </CardHeader>
+            <TabsContent value="projects" className="space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-semibold">Projects</h2>
+                  <p className="text-muted-foreground">Manage your portfolio projects</p>
+                </div>
 
-                    <CardContent>
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {project.tags.map((tag) => (
-                            <Badge key={tag} variant="outline" className="text-xs">
-                              {tag}
-                            </Badge>
-                        ))}
-                      </div>
-                      {project.featured && <Badge variant="secondary">Featured</Badge>}
-                    </CardContent>
-                  </Card>
-                </motion.div>
-            ))}
-          </div>
+                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button onClick={() => setEditingProject(null)}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Project
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>{editingProject ? "Edit Project" : "Add New Project"}</DialogTitle>
+                    </DialogHeader>
+                    <ProjectForm
+                        project={editingProject}
+                        onSave={handleSaveProject}
+                        onCancel={() => {
+                          setIsDialogOpen(false)
+                          setEditingProject(null)
+                        }}
+                    />
+                  </DialogContent>
+                </Dialog>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {projects.map((project) => (
+                    <motion.div
+                        key={project.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="group"
+                    >
+                      <Card className="h-full">
+                        {project.image_url && (
+                            <div className="relative h-48 overflow-hidden rounded-t-lg">
+                              <Image
+                                  src={project.image_url || "/placeholder.svg"}
+                                  alt={project.title}
+                                  fill
+                                  className="object-cover"
+                              />
+                            </div>
+                        )}
+
+                        <CardHeader>
+                          <div className="flex justify-between items-start">
+                            <CardTitle className="text-lg">{project.title}</CardTitle>
+                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setEditingProject(project)
+                                    setIsDialogOpen(true)
+                                  }}
+                              >
+                                <Edit className="w-3 h-3" />
+                              </Button>
+                              <Button size="sm" variant="outline" onClick={() => handleDeleteProject(project.id)}>
+                                <Trash2 className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                          <CardDescription>{project.short_description}</CardDescription>
+                        </CardHeader>
+
+                        <CardContent>
+                          <div className="flex flex-wrap gap-1 mb-2">
+                            {project.tags.map((tag) => (
+                                <Badge key={tag} variant="outline" className="text-xs">
+                                  {tag}
+                                </Badge>
+                            ))}
+                          </div>
+                          {project.featured && <Badge variant="secondary">Featured</Badge>}
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="articles">
+              <ArticlesManager />
+            </TabsContent>
+
+            <TabsContent value="personal">
+              <PersonalInfoForm />
+            </TabsContent>
+
+            <TabsContent value="about">
+              <AboutContentForm />
+            </TabsContent>
+
+            <TabsContent value="contact">
+              <ContactContentForm />
+            </TabsContent>
+
+            <TabsContent value="technologies">
+              <TechnologiesManager />
+            </TabsContent>
+
+            <TabsContent value="education">
+              <EducationManager />
+            </TabsContent>
+
+            <TabsContent value="music">
+              <MusicManager />
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
   )
@@ -372,13 +453,17 @@ function ProjectForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">Full Description</Label>
+          <Label htmlFor="description">Full Description (Optional)</Label>
           <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
-              rows={4}
+              rows={6}
+              placeholder="Supports Markdown formatting. Leave empty to show only README from GitHub."
           />
+          <p className="text-xs text-muted-foreground">
+            Markdown supported. Will be shown on project details page before README section.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

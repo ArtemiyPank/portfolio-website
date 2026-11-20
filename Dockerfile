@@ -1,55 +1,87 @@
-
-# ─── 1) Builder on Ubuntu 24.04 (glibc 2.38) ──────────────────────────────
-FROM ubuntu:24.04 AS builder
+# ============================================================
+# Stage 1: Dependencies
+# ============================================================
+FROM node:20-slim AS deps
 WORKDIR /app
 
-# Install build tools + SQLite headers + Node 20
+# Install build tools for native modules (better-sqlite3)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      curl ca-certificates build-essential python3 libsqlite3-dev && \
-    rm -rf /var/lib/apt/lists/* && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    rm -rf /var/lib/apt/lists/*
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
 
-ENV npm_config_build_from_source=better-sqlite3
-
+# Copy package files
 COPY package.json package-lock.json ./
-RUN npm ci --build-from-source=better-sqlite3
 
+# Install dependencies (with native compilation)
+RUN npm ci
+
+# ============================================================
+# Stage 2: Builder
+# ============================================================
+FROM node:20-slim AS builder
+WORKDIR /app
+
+# Install build tools
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copy source code
 COPY . .
-RUN npm rebuild better-sqlite3 && \
-    npm run db:init && \
-    npm run build
 
-# ─── 2) Production runner on the same Ubuntu 24.04 ────────────────────────
-FROM ubuntu:24.04 AS runner
+# Build Next.js application in standalone mode
+RUN npm run build
+
+# ============================================================
+# Stage 3: Runner (Production)
+# ============================================================
+FROM node:20-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Install Node 20 runtime + SQLite
+# Install runtime dependencies for SQLite
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-      curl ca-certificates libsqlite3-0 && \
-    rm -rf /var/lib/apt/lists/* && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
-    apt-get install -y nodejs && \
-    rm -rf /var/lib/apt/lists/*
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# Copy necessary files
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/scripts ./scripts
-COPY --from=builder /app/lib ./lib
-COPY --from=builder /app/data ./data
+# Copy standalone build (use existing 'node' user with UID/GID 1000)
+COPY --from=builder --chown=node:node /app/.next/standalone ./
+COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+COPY --from=builder --chown=node:node /app/public ./public
 
-# Ensure directories exist with proper permissions
-RUN mkdir -p data public/uploads && \
-    chmod -R 777 data public/uploads
+# Copy better-sqlite3 native module with all dependencies
+COPY --from=builder --chown=node:node /app/node_modules/better-sqlite3 ./node_modules/better-sqlite3
+COPY --from=builder --chown=node:node /app/node_modules/bindings ./node_modules/bindings
+COPY --from=builder --chown=node:node /app/node_modules/file-uri-to-path ./node_modules/file-uri-to-path
+
+# Copy database initialization scripts
+COPY --from=builder --chown=node:node /app/scripts ./scripts
+
+# Create data and uploads directories
+RUN mkdir -p /app/data /app/public/uploads && \
+    chown -R node:node /app/data /app/public/uploads
+
+# Copy entrypoint script and make it executable for all users
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod 755 /usr/local/bin/docker-entrypoint.sh
+
+# Note: USER directive removed - will be set via docker-compose user mapping
 
 EXPOSE 3000
 
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["node", "server.js"]

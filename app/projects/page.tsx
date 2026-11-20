@@ -219,16 +219,13 @@ export default function ProjectsPage() {
                                             </CardHeader>
 
                                             <CardContent className="flex-1">
-                                                <div className="flex flex-wrap gap-1 mb-4">
+                                                <div className="flex flex-wrap gap-1">
                                                     {project.tags.map((tag) => (
                                                         <Badge key={tag} variant="outline" className="text-xs">
                                                             {tag}
                                                         </Badge>
                                                     ))}
                                                 </div>
-                                                {project.description && (
-                                                    <p className="text-sm text-muted-foreground line-clamp-3">{project.description}</p>
-                                                )}
                                             </CardContent>
 
                                             <CardFooter className="flex gap-2">
