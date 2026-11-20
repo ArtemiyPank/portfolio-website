@@ -31,6 +31,22 @@ type EducationEntry = {
     highlights: EducationHighlight[]
 }
 
+// Превращает markdown-ссылки вида [текст](https://...) в пунктах в настоящие ссылки
+function renderLinks(text: string) {
+    const parts = text.split(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g)
+    return parts.map((part, i) => {
+        if (i % 3 === 1) {
+            return (
+                <a key={i} href={parts[i + 1]} target="_blank" rel="noopener noreferrer"
+                   className="text-primary hover:underline">
+                    {part}
+                </a>
+            )
+        }
+        return i % 3 === 2 ? null : part
+    })
+}
+
 export default function EducationPage() {
     const [content, setContent] = useState<EducationContent | null>(null)
     const [entries, setEntries] = useState<EducationEntry[]>([])
@@ -139,7 +155,7 @@ export default function EducationPage() {
                                             {edu.highlights
                                                 .sort((a, b) => a.display_order - b.display_order)
                                                 .map((hl) => (
-                                                    <li key={hl.id}>{hl.highlight_text}</li>
+                                                    <li key={hl.id}>{renderLinks(hl.highlight_text)}</li>
                                                 ))}
                                         </ul>
                                     </div>
