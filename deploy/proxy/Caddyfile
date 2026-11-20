@@ -1,0 +1,14 @@
+# Глобальный Caddyfile: каждый сайт описан отдельным файлом в sites/.
+# Новый сайт: положить sites/<name>.caddy и выполнить
+#   docker exec caddy caddy reload --config /etc/caddy/Caddyfile
+
+(common) {
+	encode zstd gzip
+	header -Server
+	log {
+		output stdout
+		format console
+	}
+}
+
+import sites/*.caddy

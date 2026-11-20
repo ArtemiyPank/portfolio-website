@@ -1,0 +1,31 @@
+# Портфолио artemiypank.com. Живёт в /srv/sites/portfolio.
+# Образ собирается локально и привозится скриптом deploy/deploy.sh.
+name: portfolio
+
+services:
+  portfolio:
+    image: portfolio:latest
+    container_name: portfolio
+    user: "1000:1000"
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: "0.0.0.0"
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/public/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3000/api/projects', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - web
+
+networks:
+  web:
+    name: web
+    external: true
